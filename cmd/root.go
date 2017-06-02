@@ -16,8 +16,8 @@ var showVersion bool
 
 var RootCmd = &cobra.Command{
 	Use:           "history",
-	Short:         "shell history",
-	Long:          "shell history",
+	Short:         "Enhanced shell history with LTSV",
+	Long:          "Enhanced shell history with LTSV",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	Run: func(cmd *cobra.Command, args []string) {

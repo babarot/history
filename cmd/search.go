@@ -8,9 +8,9 @@ import (
 )
 
 var searchCmd = &cobra.Command{
-	Use:   "search [FILE/DIR]",
-	Short: "",
-	Long:  "",
+	Use:   "search",
+	Short: "Search the command from the history file",
+	Long:  "Search the command from the history file",
 	RunE:  search,
 }
 
@@ -24,7 +24,10 @@ func search(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%#v\n", lines)
+
+	for _, line := range lines {
+		fmt.Println(line.Command)
+	}
 	return nil
 }
 

@@ -5,13 +5,15 @@ import (
 	"bytes"
 	"errors"
 	"os"
+	"strconv"
 	"strings"
 
 	ltsv "github.com/Songmu/go-ltsv"
 )
 
 type Screen struct {
-	Lines []string
+	Lines     []string
+	Histories []History
 }
 
 func NewScreen() (s *Screen, err error) {
@@ -22,12 +24,14 @@ func NewScreen() (s *Screen, err error) {
 		return
 	}
 
+	var hs []History
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		h := History{}
 		ltsv.Unmarshal([]byte(scanner.Text()), &h)
-		// lines = append(lines, h.Command)
-		lines = append(lines, scanner.Text())
+		lines = append(lines, h.render())
+		hs = append(hs, h)
 	}
 
 	err = scanner.Err()
@@ -36,25 +40,28 @@ func NewScreen() (s *Screen, err error) {
 	}
 
 	return &Screen{
-		Lines: lines,
+		Lines:     lines,
+		Histories: hs,
 	}, nil
 }
 
 type Line struct {
-	ID          string
-	ShortID     string
-	Description string
-	Filename    string
-	Path        string
-	URL         string
-	Public      bool
+	History
 }
 
 type Lines []Line
 
 func (s *Screen) parseLine(line string) (*Line, error) {
+	l := strings.Split(line, "\t")
+	id, _ := strconv.Atoi(l[0])
+	var h History
+	for _, hist := range s.Histories {
+		if hist.ID == uint32(id) {
+			h = hist
+		}
+	}
 	return &Line{
-		ID: line,
+		h,
 	}, nil
 }
 

@@ -6,9 +6,9 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add [FILE/DIR]",
-	Short: "",
-	Long:  "",
+	Use:   "add",
+	Short: "Add new history",
+	Long:  "Add new history",
 	RunE:  add,
 }
 

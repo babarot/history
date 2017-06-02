@@ -7,8 +7,8 @@ import (
 
 var editCmd = &cobra.Command{
 	Use:   "edit",
-	Short: "Edit",
-	Long:  "Edit",
+	Short: "Edit your history file directly",
+	Long:  "Edit your history file directly",
 	RunE:  edit,
 }
 

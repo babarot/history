@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"time"
 
@@ -48,4 +49,8 @@ func (h *History) Add() error {
 	w.Write([]byte("\n"))
 
 	return w.Flush()
+}
+
+func (h *History) render() string {
+	return fmt.Sprintf("%d\t%s", h.ID, h.Command)
 }
