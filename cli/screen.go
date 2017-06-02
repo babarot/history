@@ -12,8 +12,8 @@ import (
 )
 
 type Screen struct {
-	Lines     []string
-	Histories []History
+	Lines   []string
+	Records []Record
 }
 
 func NewScreen() (s *Screen, err error) {
@@ -24,14 +24,14 @@ func NewScreen() (s *Screen, err error) {
 		return
 	}
 
-	var hs []History
+	var rs Records
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		h := History{}
-		ltsv.Unmarshal([]byte(scanner.Text()), &h)
-		lines = append(lines, h.render())
-		hs = append(hs, h)
+		r := Record{}
+		ltsv.Unmarshal([]byte(scanner.Text()), &r)
+		lines = append(lines, r.render())
+		rs = append(rs, r)
 	}
 
 	err = scanner.Err()
@@ -40,13 +40,13 @@ func NewScreen() (s *Screen, err error) {
 	}
 
 	return &Screen{
-		Lines:     lines,
-		Histories: hs,
+		Lines:   lines,
+		Records: rs,
 	}, nil
 }
 
 type Line struct {
-	History
+	Record
 }
 
 type Lines []Line
@@ -54,14 +54,14 @@ type Lines []Line
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
 	id, _ := strconv.Atoi(l[0])
-	var h History
-	for _, hist := range s.Histories {
-		if hist.ID == uint32(id) {
-			h = hist
+	var r Record
+	for _, record := range s.Records {
+		if record.ID == uint32(id) {
+			r = record
 		}
 	}
 	return &Line{
-		h,
+		r,
 	}, nil
 }
 
