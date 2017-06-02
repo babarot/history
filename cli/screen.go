@@ -9,11 +9,12 @@ import (
 	"strings"
 
 	ltsv "github.com/Songmu/go-ltsv"
+	"github.com/b4b4r07/history/history"
 )
 
 type Screen struct {
 	Lines   []string
-	Records []Record
+	Records []history.Record
 }
 
 func NewScreen() (s *Screen, err error) {
@@ -24,13 +25,13 @@ func NewScreen() (s *Screen, err error) {
 		return
 	}
 
-	var rs Records
+	var rs history.Records
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		r := Record{}
+		r := history.Record{}
 		ltsv.Unmarshal([]byte(scanner.Text()), &r)
-		lines = append(lines, r.render())
+		lines = append(lines, r.Render())
 		rs = append(rs, r)
 	}
 
@@ -46,7 +47,7 @@ func NewScreen() (s *Screen, err error) {
 }
 
 type Line struct {
-	Record
+	history.Record
 }
 
 type Lines []Line
@@ -54,7 +55,7 @@ type Lines []Line
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
 	id, _ := strconv.Atoi(l[0])
-	var r Record
+	var r history.Record
 	for _, record := range s.Records {
 		if record.ID == uint32(id) {
 			r = record

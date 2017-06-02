@@ -1,4 +1,4 @@
-package cli
+package history
 
 import (
 	"bufio"
@@ -23,11 +23,15 @@ type Records []Record
 
 type History struct {
 	Records Records
+	Path    string
 }
 
-func NewHistory() (h *History, err error) {
+func Load(fname string) (h *History, err error) {
 	var rs Records
-	file, err := os.Open(Conf.History.Path)
+	if !fileExist(fname) {
+		return &History{Records: Records{}}, nil
+	}
+	file, err := os.Open(fname)
 	if err != nil {
 		return
 	}
@@ -44,9 +48,7 @@ func NewHistory() (h *History, err error) {
 		return
 	}
 
-	return &History{
-		Records: rs,
-	}, nil
+	return &History{Records: rs, Path: fname}, nil
 }
 
 func (h *History) Add(r Record) {
@@ -54,7 +56,7 @@ func (h *History) Add(r Record) {
 }
 
 func (h *History) Save() error {
-	file, err := os.OpenFile(Conf.History.Path, os.O_WRONLY|os.O_CREATE, 0600)
+	file, err := os.OpenFile(h.Path, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}
@@ -73,8 +75,8 @@ func (h *History) Save() error {
 	return w.Flush()
 }
 
-func (r *Record) render() string {
-	return fmt.Sprintf("%d\t%s", r.ID, r.Command)
+func (r *Record) Render() string {
+	return fmt.Sprintf("%d\t%s\t%s", r.ID, r.Date.Format("2006-01-02"), r.Command)
 }
 
 func NewRecord() *Record {
@@ -88,3 +90,8 @@ func (r *Record) SetCommand(arg string) { r.Command = arg }
 func (r *Record) SetDir(arg string)     { r.Dir = arg }
 func (r *Record) SetBranch(arg string)  { r.Branch = arg }
 func (r *Record) SetStatus(arg int)     { r.Status = arg }
+
+func fileExist(fname string) bool {
+	_, err := os.Stat(fname)
+	return err == nil
+}

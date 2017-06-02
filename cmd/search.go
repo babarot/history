@@ -25,9 +25,12 @@ func search(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	for _, line := range lines {
-		fmt.Println(line.Command)
+	command := lines[0].Command
+	for _, line := range lines[1:] {
+		command += "; " + line.Command
 	}
+	fmt.Println(command)
+
 	return nil
 }
 
