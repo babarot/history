@@ -2,45 +2,31 @@ package history
 
 import (
 	"bufio"
-	"fmt"
 	"os"
-	"time"
-
-	ltsv "github.com/Songmu/go-ltsv"
-	"github.com/google/uuid"
 )
-
-type Record struct {
-	ID      uint32
-	Date    time.Time
-	Command string
-	Dir     string
-	Branch  string
-	Status  int
-}
-
-type Records []Record
 
 type History struct {
 	Records Records
 	Path    string
 }
 
-func Load(fname string) (h *History, err error) {
-	var rs Records
-	if !fileExist(fname) {
-		return &History{Records: Records{}}, nil
-	}
-	file, err := os.Open(fname)
+func Load(path string) (h *History, err error) {
+	var records []Record
+	h = &History{Records: Records{}}
+
+	file, err := os.Open(path)
 	if err != nil {
+		// Return nil to regard it as no history (new)
+		// if an open error occurs
+		err = nil
 		return
 	}
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		r := Record{}
-		ltsv.Unmarshal([]byte(scanner.Text()), &r)
-		rs = append(rs, r)
+		record := &Record{}
+		record.Unmarshal(scanner.Text())
+		records = append(records, *record)
 	}
 
 	err = scanner.Err()
@@ -48,7 +34,10 @@ func Load(fname string) (h *History, err error) {
 		return
 	}
 
-	return &History{Records: rs, Path: fname}, nil
+	return &History{
+		Records: records,
+		Path:    path,
+	}, nil
 }
 
 func (h *History) Add(r Record) {
@@ -64,34 +53,10 @@ func (h *History) Save() error {
 
 	w := bufio.NewWriter(file)
 	for _, record := range h.Records {
-		b, err := ltsv.Marshal(record)
-		if err != nil {
-			return err
-		}
+		b, _ := record.Marshal()
 		w.Write(b)
 		w.Write([]byte("\n"))
 	}
 
 	return w.Flush()
-}
-
-func (r *Record) Render() string {
-	return fmt.Sprintf("%d\t%s\t%s", r.ID, r.Date.Format("2006-01-02"), r.Command)
-}
-
-func NewRecord() *Record {
-	return &Record{
-		ID:   uuid.New().ID(),
-		Date: time.Now(),
-	}
-}
-
-func (r *Record) SetCommand(arg string) { r.Command = arg }
-func (r *Record) SetDir(arg string)     { r.Dir = arg }
-func (r *Record) SetBranch(arg string)  { r.Branch = arg }
-func (r *Record) SetStatus(arg int)     { r.Status = arg }
-
-func fileExist(fname string) bool {
-	_, err := os.Stat(fname)
-	return err == nil
 }

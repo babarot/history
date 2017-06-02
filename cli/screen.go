@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	ltsv "github.com/Songmu/go-ltsv"
 	"github.com/b4b4r07/history/history"
 )
 
@@ -18,21 +17,22 @@ type Screen struct {
 }
 
 func NewScreen() (s *Screen, err error) {
-	var lines []string
+	var (
+		lines   []string
+		records history.Records
+	)
 
 	file, err := os.Open(Conf.History.Path)
 	if err != nil {
 		return
 	}
 
-	var rs history.Records
-
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		r := history.Record{}
-		ltsv.Unmarshal([]byte(scanner.Text()), &r)
+		r := &history.Record{}
+		r.Unmarshal(scanner.Text())
 		lines = append(lines, r.Render())
-		rs = append(rs, r)
+		records = append(records, *r)
 	}
 
 	err = scanner.Err()
@@ -42,7 +42,7 @@ func NewScreen() (s *Screen, err error) {
 
 	return &Screen{
 		Lines:   lines,
-		Records: rs,
+		Records: records,
 	}, nil
 }
 
