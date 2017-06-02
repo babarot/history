@@ -1,12 +1,13 @@
 package cli
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"os"
 	"strings"
 
-	"github.com/najeira/ltsv"
+	ltsv "github.com/Songmu/go-ltsv"
 )
 
 type Screen struct {
@@ -14,25 +15,24 @@ type Screen struct {
 }
 
 func NewScreen() (s *Screen, err error) {
-	body, err := ioutil.ReadFile(Conf.History.Path)
-	if err != nil {
-		return
-	}
-	b := bytes.NewBuffer(body)
-
-	reader := ltsv.NewReader(b)
-	records, err := reader.ReadAll()
-	if err != nil {
-		return
-	}
-
 	var lines []string
-	for _, record := range records {
-		line := ""
-		for _, v := range record {
-			line += v
-		}
-		lines = append(lines, line)
+
+	file, err := os.Open(Conf.History.Path)
+	if err != nil {
+		return
+	}
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		h := History{}
+		ltsv.Unmarshal([]byte(scanner.Text()), &h)
+		// lines = append(lines, h.Command)
+		lines = append(lines, scanner.Text())
+	}
+
+	err = scanner.Err()
+	if err != nil {
+		return
 	}
 
 	return &Screen{
