@@ -10,13 +10,18 @@ import (
 )
 
 type Config struct {
-	Core CoreConfig `toml:"core"`
+	Core    CoreConfig    `toml:"core"`
+	History HistoryConfig `toml:"history"`
 }
 
 type CoreConfig struct {
 	Editor    string `toml:"editor"`
 	SelectCmd string `toml:"selectcmd"`
 	TomlFile  string `toml:"tomlfile"`
+}
+
+type HistoryConfig struct {
+	Path string `toml:"path"`
 }
 
 var Conf Config
@@ -61,12 +66,17 @@ func (cfg *Config) LoadFile(file string) error {
 		return err
 	}
 
+	// base dir
+	dir := filepath.Dir(file)
+
 	cfg.Core.Editor = os.Getenv("EDITOR")
 	if cfg.Core.Editor == "" {
 		cfg.Core.Editor = "vim"
 	}
 	cfg.Core.SelectCmd = "fzf-tmux --multi:fzf --multi:peco"
 	cfg.Core.TomlFile = file
+
+	cfg.History.Path = filepath.Join(dir, "history.ltsv")
 
 	return toml.NewEncoder(f).Encode(cfg)
 }
