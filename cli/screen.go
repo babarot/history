@@ -1,10 +1,8 @@
 package cli
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
-	"os"
 	"strconv"
 	"strings"
 
@@ -27,29 +25,24 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 		records history.Records
 	)
 
-	file, err := os.Open(Conf.History.Path)
+	h, err := history.Load(Conf.History.Path)
 	if err != nil {
-		err = errors.New("history is empty")
 		return
 	}
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		r := &history.Record{}
-		r.Unmarshal(scanner.Text())
-		if c.Dir != "" && c.Dir != r.Dir {
-			continue
-		}
-		if c.Branch != "" && c.Branch != r.Branch {
-			continue
-		}
-		lines = append(lines, r.Render(Conf.History.Visible))
-		records = append(records, *r)
-	}
+	h.Records.Sort()
+	h.Records.Reverse()
+	h.Records.Unique()
 
-	err = scanner.Err()
-	if err != nil {
-		return
+	for _, record := range h.Records {
+		if c.Dir != "" && c.Dir != record.Dir {
+			continue
+		}
+		if c.Branch != "" && c.Branch != record.Branch {
+			continue
+		}
+		lines = append(lines, record.Render(Conf.History.Visible))
+		records = append(records, record)
 	}
 
 	return &Screen{

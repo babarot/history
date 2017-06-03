@@ -2,6 +2,8 @@ package history
 
 import (
 	"bytes"
+	"sort"
+	"strings"
 	tt "text/template"
 	"time"
 
@@ -74,4 +76,50 @@ func (r *Record) Marshal() ([]byte, error) {
 		return []byte{}, err
 	}
 	return b, nil
+}
+
+func (r *Records) Filter(fn func(Record) bool) *Records {
+	records := make(Records, 0)
+	for _, record := range *r {
+		if fn(record) {
+			records = append(records, record)
+		}
+	}
+	return &records
+}
+
+func (r *Records) Unique() {
+	rs := make(Records, 0)
+	encountered := map[string]bool{}
+	for _, record := range *r {
+		if !encountered[record.Command] {
+			encountered[record.Command] = true
+			rs = append(rs, record)
+		}
+	}
+	*r = rs
+}
+
+func (r *Records) Reverse() {
+	var rs Records
+	for i := len(*r) - 1; i >= 0; i-- {
+		rs = append(rs, (*r)[i])
+	}
+	*r = rs
+}
+
+func (r *Records) Grep(words []string) {
+	for _, word := range words {
+		*r = *r.Filter(func(r Record) bool {
+			return strings.HasPrefix(r.Command, word)
+		})
+	}
+}
+
+func (r Records) Len() int           { return len(r) }
+func (r Records) Less(i, j int) bool { return r[i].Date.Before(r[j].Date) }
+func (r Records) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+
+func (r *Records) Sort() {
+	sort.Sort(*r)
 }
