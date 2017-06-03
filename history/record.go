@@ -2,6 +2,7 @@ package history
 
 import (
 	"bytes"
+	"fmt"
 	"sort"
 	"strings"
 	tt "text/template"
@@ -51,7 +52,7 @@ func (r *Record) Render(visible []string) (line string) {
 		err := tmpl.Execute(&b, map[string]interface{}{
 			"ID":      r.ID, // Required when parsing
 			"Date":    r.Date.Format("2006-01-02"),
-			"Time":    humanize.Time(r.Date),
+			"Time":    fmt.Sprintf("%-15s", humanize.Time(r.Date)),
 			"Command": r.Command,
 			"Dir":     r.Dir,
 			"Branch":  r.Branch,

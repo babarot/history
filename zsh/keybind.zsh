@@ -2,7 +2,7 @@
 
 __history::keybind::get_by_dir()
 {
-    BUFFER="$(command history search --dir --branch)"
+    BUFFER="$(command history search --dir --branch 2>/dev/null)"
     CURSOR=$#BUFFER
     zle reset-prompt
 }

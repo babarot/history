@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	"strings"
 )
 
 var (
@@ -15,4 +16,14 @@ func Edit(fname string) error {
 	}
 
 	return Run(editor, fname)
+}
+
+func IgnoringWord(command string) bool {
+	command = strings.Split(command, " ")[0]
+	for _, ignore := range Conf.History.Ignores {
+		if ignore == command {
+			return true
+		}
+	}
+	return false
 }

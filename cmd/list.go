@@ -11,8 +11,8 @@ import (
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "list",
-	Long:  "list",
+	Short: "List the history",
+	Long:  "List the history",
 	Run:   list,
 }
 

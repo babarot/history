@@ -29,6 +29,11 @@ func add(cmd *cobra.Command, args []string) error {
 		return errors.New("--dir option is required")
 	}
 
+	// skip adding if the command is registed as ignoring word
+	if cli.IgnoringWord(addCommand) {
+		return nil
+	}
+
 	r.SetCommand(addCommand)
 	r.SetDir(addDir)
 	r.SetBranch(addBranch)

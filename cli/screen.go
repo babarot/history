@@ -14,11 +14,6 @@ type Screen struct {
 	Records []history.Record
 }
 
-type ScreenConfig struct {
-	Dir    string
-	Branch string
-}
-
 func NewScreen(c ScreenConfig) (s *Screen, err error) {
 	var (
 		lines   []string

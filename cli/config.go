@@ -23,6 +23,13 @@ type CoreConfig struct {
 type HistoryConfig struct {
 	Path    string   `toml:"path"`
 	Visible []string `toml:"visible"`
+	Ignores []string `toml:"ignores"`
+}
+
+// ScreenConfig is only for Screen
+type ScreenConfig struct {
+	Dir    string
+	Branch string
 }
 
 var Conf Config
@@ -79,6 +86,7 @@ func (cfg *Config) LoadFile(file string) error {
 
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
 	cfg.History.Visible = []string{"{{.Command}}"}
+	cfg.History.Ignores = []string{}
 
 	return toml.NewEncoder(f).Encode(cfg)
 }
