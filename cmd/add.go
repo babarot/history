@@ -51,6 +51,6 @@ func init() {
 	RootCmd.AddCommand(addCmd)
 	addCmd.Flags().StringVarP(&addCommand, "command", "", "", "Set command")
 	addCmd.Flags().StringVarP(&addDir, "dir", "", "", "Set dir")
-	addCmd.Flags().StringVarP(&addDir, "branch", "", "", "Set branch")
+	addCmd.Flags().StringVarP(&addBranch, "branch", "", "", "Set branch")
 	addCmd.Flags().IntVarP(&addStatus, "status", "", 0, "Set status")
 }

@@ -15,7 +15,7 @@ var searchCmd = &cobra.Command{
 }
 
 func search(cmd *cobra.Command, args []string) error {
-	screen, err := cli.NewScreen()
+	screen, err := cli.NewScreen(searchConfig())
 	if err != nil {
 		return err
 	}
@@ -34,6 +34,24 @@ func search(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+func searchConfig() cli.ScreenConfig {
+	cfg := cli.ScreenConfig{}
+	if searchDir {
+		cfg.Dir = cli.GetDirName()
+	}
+	if searchBranch {
+		cfg.Branch = cli.GetBranchName()
+	}
+	return cfg
+}
+
+var (
+	searchDir    bool
+	searchBranch bool
+)
+
 func init() {
 	RootCmd.AddCommand(searchCmd)
+	searchCmd.Flags().BoolVarP(&searchDir, "dir", "d", false, "Search with dir")
+	searchCmd.Flags().BoolVarP(&searchBranch, "branch", "b", false, "Search with branch")
 }

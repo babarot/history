@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	colon "github.com/b4b4r07/go-colon"
 	"github.com/kballard/go-shellquote"
@@ -68,4 +69,22 @@ func Run(command string, args ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	return cmd.Run()
+}
+
+func runGetOutput(dir, command string, args ...string) (string, error) {
+	cmd := exec.Command(command, args...)
+	if dir != "." {
+		cmd.Dir = dir
+	}
+	b, err := cmd.Output()
+	return string(b), err
+}
+
+func GetBranchName() string {
+	s, _ := runGetOutput(".", "git", "rev-parse", "--abbrev-ref", "HEAD")
+	return strings.TrimPrefix(strings.TrimSpace(s), "heads/")
+}
+func GetDirName() string {
+	s, _ := os.Getwd()
+	return s
 }
