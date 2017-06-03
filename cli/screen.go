@@ -29,6 +29,7 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 
 	file, err := os.Open(Conf.History.Path)
 	if err != nil {
+		err = errors.New("history is empty")
 		return
 	}
 
@@ -42,7 +43,7 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 		if c.Branch != "" && c.Branch != r.Branch {
 			continue
 		}
-		lines = append(lines, r.Render())
+		lines = append(lines, r.Render(Conf.History.Visible))
 		records = append(records, *r)
 	}
 
@@ -65,16 +66,17 @@ type Lines []Line
 
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
-	id, _ := strconv.Atoi(l[0])
-	var r history.Record
-	for _, record := range s.Records {
+	id, err := strconv.Atoi(l[0])
+	if err != nil {
+		return &Line{}, errors.New("id not found in selected line")
+	}
+	var record history.Record
+	for _, record = range s.Records {
 		if record.ID == uint32(id) {
-			r = record
+			break
 		}
 	}
-	return &Line{
-		r,
-	}, nil
+	return &Line{record}, nil
 }
 
 func (l *Lines) Filter(fn func(Line) bool) *Lines {

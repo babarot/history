@@ -21,7 +21,8 @@ type CoreConfig struct {
 }
 
 type HistoryConfig struct {
-	Path string `toml:"path"`
+	Path    string   `toml:"path"`
+	Visible []string `toml:"visible"`
 }
 
 var Conf Config
@@ -77,6 +78,7 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.Core.TomlFile = file
 
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
+	cfg.History.Visible = []string{"{{.Command}}"}
 
 	return toml.NewEncoder(f).Encode(cfg)
 }

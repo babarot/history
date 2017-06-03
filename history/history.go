@@ -12,7 +12,7 @@ type History struct {
 
 func Load(path string) (h *History, err error) {
 	var records []Record
-	h = &History{Records: Records{}}
+	h = &History{Records: Records{}, Path: path}
 
 	file, err := os.Open(path)
 	if err != nil {
