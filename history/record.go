@@ -2,7 +2,6 @@ package history
 
 import (
 	"bytes"
-	"fmt"
 	"sort"
 	"strings"
 	tt "text/template"
@@ -10,7 +9,12 @@ import (
 
 	ltsv "github.com/Songmu/go-ltsv"
 	"github.com/dustin/go-humanize"
+	"github.com/fatih/color"
 )
+
+func init() {
+	color.NoColor = false
+}
 
 type Record struct {
 	Date    time.Time
@@ -52,7 +56,7 @@ func (r *Record) Render(visible []string) (line string) {
 		var b bytes.Buffer
 		err := tmpl.Execute(&b, map[string]interface{}{
 			"Date":    r.Date.Format("2006-01-02"),
-			"Time":    fmt.Sprintf("%-15s", humanize.Time(r.Date)),
+			"Time":    color.New(color.FgBlack).Sprintf("%-15s", humanize.Time(r.Date)),
 			"Command": r.Command,
 			"Dir":     r.Dir,
 			"Branch":  r.Branch,
