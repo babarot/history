@@ -123,6 +123,18 @@ func (r *Records) Contains(word string) {
 	})
 }
 
+func (r *Records) Branch(branch string) {
+	*r = *r.Filter(func(r Record) bool {
+		return r.Branch == branch
+	})
+}
+
+func (r *Records) Dir(dir string) {
+	*r = *r.Filter(func(r Record) bool {
+		return r.Dir == dir
+	})
+}
+
 func (r Records) Len() int           { return len(r) }
 func (r Records) Less(i, j int) bool { return r[i].Date.Before(r[j].Date) }
 func (r Records) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
