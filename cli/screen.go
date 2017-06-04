@@ -28,6 +28,10 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 	h.Records.Reverse()
 	h.Records.Unique()
 
+	if c.Query != "" {
+		h.Records.Contains(c.Query)
+	}
+
 	for _, record := range h.Records {
 		if c.Dir != "" && c.Dir != record.Dir {
 			continue

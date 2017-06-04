@@ -30,6 +30,7 @@ type HistoryConfig struct {
 type ScreenConfig struct {
 	Dir    string
 	Branch string
+	Query  string
 }
 
 var Conf Config
