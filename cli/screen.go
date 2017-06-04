@@ -3,7 +3,6 @@ package cli
 import (
 	"bytes"
 	"errors"
-	"strconv"
 	"strings"
 
 	"github.com/b4b4r07/history/history"
@@ -54,13 +53,13 @@ type Lines []Line
 
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
-	id, err := strconv.Atoi(l[0])
-	if err != nil {
-		return &Line{}, errors.New("id not found in selected line")
-	}
 	var record history.Record
+	idx := Index(Conf.History.Visible, "{{.Command}}")
+	if idx > len(l) {
+		return &Line{}, errors.New("invalid index; review config visible")
+	}
 	for _, record = range s.Records {
-		if record.ID == uint32(id) {
+		if record.Command == l[idx] {
 			break
 		}
 	}

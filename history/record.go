@@ -10,11 +10,9 @@ import (
 
 	ltsv "github.com/Songmu/go-ltsv"
 	"github.com/dustin/go-humanize"
-	"github.com/google/uuid"
 )
 
 type Record struct {
-	ID      uint32
 	Date    time.Time
 	Command string
 	Dir     string
@@ -26,7 +24,6 @@ type Records []Record
 
 func NewRecord() *Record {
 	return &Record{
-		ID:   uuid.New().ID(),
 		Date: time.Now(),
 	}
 }
@@ -38,8 +35,12 @@ func (r *Record) SetStatus(arg int)     { r.Status = arg }
 
 func (r *Record) Render(visible []string) (line string) {
 	var tmpl *tt.Template
-	format := "{{.ID}}"
-	for _, v := range visible {
+	if len(visible) == 0 {
+		// default
+		visible = []string{"{{.Command}}"}
+	}
+	format := visible[0]
+	for _, v := range visible[1:] {
 		format += "\t" + v
 	}
 	t, err := tt.New("format").Parse(format)
@@ -50,7 +51,6 @@ func (r *Record) Render(visible []string) (line string) {
 	if tmpl != nil {
 		var b bytes.Buffer
 		err := tmpl.Execute(&b, map[string]interface{}{
-			"ID":      r.ID, // Required when parsing
 			"Date":    r.Date.Format("2006-01-02"),
 			"Time":    fmt.Sprintf("%-15s", humanize.Time(r.Date)),
 			"Command": r.Command,
