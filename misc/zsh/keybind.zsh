@@ -3,7 +3,7 @@
 __history::keybind::get_by_dir()
 {
     local buf
-    buf="$(command history search --dir --branch --query "$LBUFFER" 2>/dev/null)"
+    buf="$(command history search --dir --branch --query "$LBUFFER")"
     if [[ -n $buf ]]; then
         BUFFER="$buf"
         CURSOR=$#BUFFER
@@ -13,8 +13,12 @@ __history::keybind::get_by_dir()
 
 __history::keybind::get_all()
 {
-    local buf
-    buf="$(command history search --query "$LBUFFER" 2>/dev/null)"
+    local buf col opt
+    col="$(command history config --get "history.record.columns" | sed 's/\[//;s/\]//;s/ /,/g')"
+    if [[ ! $col =~ "{{.Base}}" ]]; then
+        opt="--columns $col,{{.Base}}"
+    fi
+    buf="$(command history search $opt --query "$LBUFFER")"
     if [[ -n $buf ]]; then
         BUFFER="$buf"
         CURSOR=$#BUFFER
