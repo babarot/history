@@ -10,6 +10,7 @@ build: deps
 
 install: build
 	install -m 755 ./bin/$(BIN) ~/bin/$(BIN)
+	install -m 644 ./misc/zsh/completions/_history ~/.zsh/Completion
 
 deps:
 	go get -d -v ./...
