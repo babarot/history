@@ -62,6 +62,10 @@ func (s *Screen) parseLine(line string) (*Line, error) {
 	if idx > len(l) {
 		return &Line{}, errors.New("invalid index; review config visible")
 	}
+	if idx == -1 {
+		// default
+		idx = 0
+	}
 	for _, record = range s.Records {
 		if record.Command == l[idx] {
 			break
