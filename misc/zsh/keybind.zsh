@@ -11,6 +11,17 @@ __history::keybind::get_by_dir()
     fi
 }
 
+__history::keybind::get_all()
+{
+    local buf
+    buf="$(command history search --query "$LBUFFER" 2>/dev/null)"
+    if [[ -n $buf ]]; then
+        BUFFER="$buf"
+        CURSOR=$#BUFFER
+        zle reset-prompt
+    fi
+}
+
 __history::keybind::arrow_up()
 {
     __history::substring::search_begin

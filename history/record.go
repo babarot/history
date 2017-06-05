@@ -135,6 +135,10 @@ func (r *Records) Dir(dir string) {
 	})
 }
 
+func (r *Records) Latest() Record {
+	return (*r)[len(*r)-1]
+}
+
 func (r Records) Len() int           { return len(r) }
 func (r Records) Less(i, j int) bool { return r[i].Date.Before(r[j].Date) }
 func (r Records) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }

@@ -13,6 +13,11 @@ if [[ -n $ZSH_HISTORY_KEYBIND_GET_BY_DIR ]]; then
     bindkey "$ZSH_HISTORY_KEYBIND_GET_BY_DIR" "__history::keybind::get_by_dir"
 fi
 
+if [[ -n $ZSH_HISTORY_KEYBIND_GET_ALL ]]; then
+    zle -N "__history::keybind::get_all"
+    bindkey "$ZSH_HISTORY_KEYBIND_GET_ALL" "__history::keybind::get_all"
+fi
+
 if [[ -n $ZSH_HISTORY_KEYBIND_ARROW_UP ]]; then
     zle -N "__history::keybind::arrow_up"
     bindkey "$ZSH_HISTORY_KEYBIND_ARROW_UP" "__history::keybind::arrow_up"
