@@ -39,13 +39,13 @@ func (r *Record) SetStatus(arg int)     { r.Status = arg }
 
 func (r *Record) Render() (line string) {
 	var tmpl *tt.Template
-	visible := config.Conf.History.Record.Visible
-	if len(visible) == 0 {
+	columns := config.Conf.History.Record.Columns
+	if len(columns) == 0 {
 		// default
-		visible = []string{"{{.Command}}"}
+		columns = []string{"{{.Command}}"}
 	}
-	format := visible[0]
-	for _, v := range visible[1:] {
+	format := columns[0]
+	for _, v := range columns[1:] {
 		format += "\t" + v
 	}
 	t, err := tt.New("format").Parse(format)

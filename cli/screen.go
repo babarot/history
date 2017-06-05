@@ -61,9 +61,9 @@ type Lines []Line
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
 	var record history.Record
-	idx := config.KeyCol(config.Conf.History.Record.Visible)
+	idx := config.KeyCol(config.Conf.History.Record.Columns)
 	if idx > len(l) {
-		return &Line{}, errors.New("invalid index; review config visible")
+		return &Line{}, errors.New("invalid index; review config columns")
 	}
 	if idx == -1 {
 		// default

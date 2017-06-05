@@ -32,7 +32,7 @@ type HistoryConfig struct {
 type SyncConfig struct{}
 
 type RecordConfig struct {
-	Visible  []string `toml:"visible"`
+	Columns  []string `toml:"columns"`
 	StatusOK string   `toml:"status_ok"`
 	StatusNG string   `toml:"status_ng"`
 }
@@ -99,7 +99,7 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
 	cfg.History.Ignores = []string{}
 	cfg.History.UseColor = false
-	cfg.History.Record.Visible = []string{"{{.Command}}"}
+	cfg.History.Record.Columns = []string{"{{.Command}}"}
 	cfg.History.Record.StatusOK = "o"
 	cfg.History.Record.StatusNG = "x"
 
