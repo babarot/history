@@ -46,13 +46,17 @@ func searchConfig() config.ScreenConfig {
 	if searchQuery != "" {
 		cfg.Query = searchQuery
 	}
+	if searchColumns != "" {
+		cfg.Columns = searchColumns
+	}
 	return cfg
 }
 
 var (
-	searchDir    bool
-	searchBranch bool
-	searchQuery  string
+	searchDir     bool
+	searchBranch  bool
+	searchQuery   string
+	searchColumns string
 )
 
 func init() {
@@ -60,4 +64,5 @@ func init() {
 	searchCmd.Flags().BoolVarP(&searchDir, "dir", "d", false, "Search with dir")
 	searchCmd.Flags().BoolVarP(&searchBranch, "branch", "b", false, "Search with branch")
 	searchCmd.Flags().StringVarP(&searchQuery, "query", "q", "", "Search with query")
+	searchCmd.Flags().StringVarP(&searchColumns, "columns", "c", "", "Specify columns with options")
 }

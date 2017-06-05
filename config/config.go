@@ -39,9 +39,10 @@ type RecordConfig struct {
 
 // ScreenConfig is only for Screen
 type ScreenConfig struct {
-	Dir    string
-	Branch string
-	Query  string
+	Dir     string
+	Branch  string
+	Query   string
+	Columns string
 }
 
 var Conf Config

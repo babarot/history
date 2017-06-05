@@ -38,7 +38,8 @@ _history () {
                 '(- :)--help[Show this help and exit]' \
                 '(--branch -b)'{--branch,-b}'=[Search with branch]' \
                 '(--dir -d)'{--dir,-d}'=[Search with dir]' \
-                '(--query -q)'{--query,-q}'=[Set with query]' \
+                '(--query -q)'{--query,-q}'=[Search with query]' \
+                '(--columns -c)'{--columns,-c}'=[Specify columns with options]' \
                 && return 0
             ;;
         (list)
