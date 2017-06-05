@@ -42,16 +42,21 @@ func searchConfig() cli.ScreenConfig {
 	if searchBranch {
 		cfg.Branch = cli.GetBranchName()
 	}
+	if searchQuery != "" {
+		cfg.Query = searchQuery
+	}
 	return cfg
 }
 
 var (
 	searchDir    bool
 	searchBranch bool
+	searchQuery  string
 )
 
 func init() {
 	RootCmd.AddCommand(searchCmd)
 	searchCmd.Flags().BoolVarP(&searchDir, "dir", "d", false, "Search with dir")
 	searchCmd.Flags().BoolVarP(&searchBranch, "branch", "b", false, "Search with branch")
+	searchCmd.Flags().StringVarP(&searchQuery, "query", "q", "", "Search with query")
 }

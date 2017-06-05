@@ -21,15 +21,23 @@ type CoreConfig struct {
 }
 
 type HistoryConfig struct {
-	Path    string   `toml:"path"`
+	Path    string       `toml:"path"`
+	Ignores []string     `toml:"ignores"`
+	Sync    SyncConfig   `toml:"sync"`
+	Record  RecordConfig `toml:"record"`
+}
+
+type SyncConfig struct{}
+
+type RecordConfig struct {
 	Visible []string `toml:"visible"`
-	Ignores []string `toml:"ignores"`
 }
 
 // ScreenConfig is only for Screen
 type ScreenConfig struct {
 	Dir    string
 	Branch string
+	Query  string
 }
 
 var Conf Config
@@ -85,8 +93,8 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.Core.TomlFile = file
 
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
-	cfg.History.Visible = []string{"{{.Command}}"}
 	cfg.History.Ignores = []string{}
+	cfg.History.Record.Visible = []string{"{{.Command}}"}
 
 	return toml.NewEncoder(f).Encode(cfg)
 }

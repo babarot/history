@@ -2,9 +2,13 @@
 
 __history::keybind::get_by_dir()
 {
-    BUFFER="$(command history search --dir --branch 2>/dev/null)"
-    CURSOR=$#BUFFER
-    zle reset-prompt
+    local buf
+    buf="$(command history search --dir --branch --query "$LBUFFER" 2>/dev/null)"
+    if [[ -n $buf ]]; then
+        BUFFER="$buf"
+        CURSOR=$#BUFFER
+        zle reset-prompt
+    fi
 }
 
 __history::keybind::arrow_up()

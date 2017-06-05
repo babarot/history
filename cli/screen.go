@@ -28,6 +28,10 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 	h.Records.Reverse()
 	h.Records.Unique()
 
+	if c.Query != "" {
+		h.Records.Contains(c.Query)
+	}
+
 	for _, record := range h.Records {
 		if c.Dir != "" && c.Dir != record.Dir {
 			continue
@@ -35,7 +39,7 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 		if c.Branch != "" && c.Branch != record.Branch {
 			continue
 		}
-		lines = append(lines, record.Render(Conf.History.Visible))
+		lines = append(lines, record.Render(Conf.History.Record.Visible))
 		records = append(records, record)
 	}
 
@@ -54,9 +58,13 @@ type Lines []Line
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
 	var record history.Record
-	idx := Index(Conf.History.Visible, "{{.Command}}")
+	idx := Index(Conf.History.Record.Visible, "{{.Command}}")
 	if idx > len(l) {
 		return &Line{}, errors.New("invalid index; review config visible")
+	}
+	if idx == -1 {
+		// default
+		idx = 0
 	}
 	for _, record = range s.Records {
 		if record.Command == l[idx] {

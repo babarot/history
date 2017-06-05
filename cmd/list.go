@@ -26,7 +26,18 @@ func list(cmd *cobra.Command, args []string) {
 	h.Records.Reverse()
 	h.Records.Unique()
 	h.Records.Reverse()
-	h.Records.Grep(args)
+
+	if listBranch {
+		h.Records.Branch(cli.GetBranchName())
+	}
+
+	if listDir {
+		h.Records.Dir(cli.GetDirName())
+	}
+
+	for _, arg := range args {
+		h.Records.Contains(arg)
+	}
 
 	for _, record := range h.Records {
 		fmt.Println(record.Command)
@@ -35,4 +46,13 @@ func list(cmd *cobra.Command, args []string) {
 
 func init() {
 	RootCmd.AddCommand(listCmd)
+	listCmd.Flags().BoolVarP(&listDir, "dir", "d", false, "List with dir")
+	listCmd.Flags().BoolVarP(&listBranch, "branch", "b", false, "List with branch")
+	listCmd.Flags().StringVarP(&listQuery, "query", "q", "", "List with query")
 }
+
+var (
+	listDir    bool
+	listBranch bool
+	listQuery  string
+)
