@@ -3,6 +3,7 @@ package history
 import (
 	"bytes"
 	"fmt"
+	"os/exec"
 	"sort"
 	"strings"
 	tt "text/template"
@@ -39,7 +40,6 @@ func (r *Record) SetStatus(arg int)     { r.Status = arg }
 func (r *Record) Render() (line string) {
 	var tmpl *tt.Template
 	visible := config.Conf.History.Record.Visible
-	highlight := config.Conf.History.UseColor
 	if len(visible) == 0 {
 		// default
 		visible = []string{"{{.Command}}"}
@@ -52,25 +52,13 @@ func (r *Record) Render() (line string) {
 	if err != nil {
 		return
 	}
-	command := r.Command
-	if highlight {
-		// TODO: more faster
-		out, err := pipeline.Output(
-			[]string{"echo", command},
-			[]string{"highlight", "-S", "sh", "-O", "ansi"},
-		)
-		if err != nil {
-			return
-		}
-		command = strings.TrimSuffix(string(out), "\n")
-	}
 	tmpl = t
 	if tmpl != nil {
 		var b bytes.Buffer
 		err := tmpl.Execute(&b, map[string]interface{}{
 			"Date":    r.Date.Format("2006-01-02"),
 			"Time":    fmt.Sprintf("%-15s", humanize.Time(r.Date)),
-			"Command": command,
+			"Command": r.renderCommand(),
 			"Dir":     r.Dir,
 			"Branch":  r.Branch,
 			"Status": func(status int) string {
@@ -96,6 +84,25 @@ func (r *Record) Render() (line string) {
 		line = b.String()
 	}
 	return
+}
+
+func (r *Record) renderCommand() string {
+	if !config.Conf.History.UseColor {
+		return r.Command
+	}
+	highlight, err := exec.LookPath("highlight")
+	if err != nil {
+		return r.Command
+	}
+	// TODO: more faster
+	out, err := pipeline.Output(
+		[]string{"echo", r.Command},
+		[]string{highlight, "-S", "sh", "-O", "ansi"},
+	)
+	if err != nil {
+		return r.Command
+	}
+	return strings.TrimSuffix(string(out), "\n")
 }
 
 func (r *Record) Unmarshal(line string) Record {
