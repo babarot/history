@@ -3,13 +3,18 @@ package history
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"sort"
 	"strings"
 	tt "text/template"
 	"time"
 
+	"golang.org/x/crypto/ssh/terminal"
+
 	ltsv "github.com/Songmu/go-ltsv"
+	pathshorten "github.com/b4b4r07/go-pathshorten"
 	"github.com/b4b4r07/history/config"
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
@@ -59,7 +64,9 @@ func (r *Record) Render() (line string) {
 			"Date":    r.Date.Format("2006-01-02"),
 			"Time":    fmt.Sprintf("%-15s", humanize.Time(r.Date)),
 			"Command": r.renderCommand(),
-			"Dir":     r.Dir,
+			"Dir":     r.renderDir(),
+			"Path":    r.Dir,
+			"Base":    color.BlueString(filepath.Base(r.Dir)),
 			"Branch":  r.Branch,
 			"Status": func(status int) string {
 				switch status {
@@ -103,6 +110,18 @@ func (r *Record) renderCommand() string {
 		return r.Command
 	}
 	return strings.TrimSuffix(string(out), "\n")
+}
+
+func (r *Record) renderDir() string {
+	w, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		w = 20
+	}
+	dir := r.Dir
+	if len(r.Dir) > w/3 {
+		dir = pathshorten.Run(r.Dir)
+	}
+	return color.BlueString(dir)
 }
 
 func (r *Record) Unmarshal(line string) Record {
