@@ -9,7 +9,9 @@ import (
 	"time"
 
 	ltsv "github.com/Songmu/go-ltsv"
+	"github.com/b4b4r07/history/config"
 	"github.com/dustin/go-humanize"
+	"github.com/fatih/color"
 	pipeline "github.com/mattn/go-pipeline"
 )
 
@@ -34,8 +36,10 @@ func (r *Record) SetDir(arg string)     { r.Dir = arg }
 func (r *Record) SetBranch(arg string)  { r.Branch = arg }
 func (r *Record) SetStatus(arg int)     { r.Status = arg }
 
-func (r *Record) Render(visible []string, color bool) (line string) {
+func (r *Record) Render() (line string) {
 	var tmpl *tt.Template
+	visible := config.Conf.History.Record.Visible
+	highlight := config.Conf.History.UseColor
 	if len(visible) == 0 {
 		// default
 		visible = []string{"{{.Command}}"}
@@ -49,7 +53,7 @@ func (r *Record) Render(visible []string, color bool) (line string) {
 		return
 	}
 	command := r.Command
-	if color {
+	if highlight {
 		// TODO: more faster
 		out, err := pipeline.Output(
 			[]string{"echo", command},
@@ -69,7 +73,22 @@ func (r *Record) Render(visible []string, color bool) (line string) {
 			"Command": command,
 			"Dir":     r.Dir,
 			"Branch":  r.Branch,
-			"Status":  r.Status,
+			"Status": func(status int) string {
+				switch status {
+				case 0:
+					ok := config.Conf.History.Record.StatusOK
+					if ok == "" {
+						ok = "o"
+					}
+					return color.GreenString(ok)
+				default:
+					ng := config.Conf.History.Record.StatusNG
+					if ng == "" {
+						ng = "x"
+					}
+					return color.RedString(ng)
+				}
+			}(r.Status),
 		})
 		if err != nil {
 			return
@@ -154,4 +173,8 @@ func (r Records) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
 
 func (r *Records) Sort() {
 	sort.Sort(*r)
+}
+
+func init() {
+	color.NoColor = false
 }

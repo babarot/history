@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/b4b4r07/history/cli"
+	"github.com/b4b4r07/history/config"
 	"github.com/spf13/cobra"
 )
 
@@ -43,10 +43,10 @@ func init() {
 }
 
 func initConf() {
-	dir, _ := cli.GetDefaultDir()
+	dir, _ := config.GetDefaultDir()
 	toml := filepath.Join(dir, "config.toml")
 
-	err := cli.Conf.LoadFile(toml)
+	err := config.Conf.LoadFile(toml)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

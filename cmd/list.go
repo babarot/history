@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/b4b4r07/history/cli"
+	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +18,7 @@ var listCmd = &cobra.Command{
 }
 
 func list(cmd *cobra.Command, args []string) {
-	h, err := history.Load(cli.Conf.History.Path)
+	h, err := history.Load(config.Conf.History.Path)
 	if err != nil {
 		os.Exit(1)
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/b4b4r07/history/cli"
+	"github.com/b4b4r07/history/config"
 	"github.com/spf13/cobra"
 )
 
@@ -34,8 +35,8 @@ func search(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func searchConfig() cli.ScreenConfig {
-	cfg := cli.ScreenConfig{}
+func searchConfig() config.ScreenConfig {
+	cfg := config.ScreenConfig{}
 	if searchDir {
 		cfg.Dir = cli.GetDirName()
 	}

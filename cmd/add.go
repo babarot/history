@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 
-	"github.com/b4b4r07/history/cli"
+	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
 	"github.com/spf13/cobra"
 )
@@ -16,7 +16,7 @@ var addCmd = &cobra.Command{
 }
 
 func add(cmd *cobra.Command, args []string) error {
-	h, err := history.Load(cli.Conf.History.Path)
+	h, err := history.Load(config.Conf.History.Path)
 	if err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func add(cmd *cobra.Command, args []string) error {
 	}
 
 	// skip adding if the command is registed as ignoring word
-	if cli.IgnoringWord(addCommand) {
+	if config.CheckIgnores(addCommand) {
 		return nil
 	}
 
