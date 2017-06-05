@@ -1,10 +1,11 @@
-package cli
+package config
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -21,16 +22,19 @@ type CoreConfig struct {
 }
 
 type HistoryConfig struct {
-	Path    string       `toml:"path"`
-	Ignores []string     `toml:"ignores"`
-	Sync    SyncConfig   `toml:"sync"`
-	Record  RecordConfig `toml:"record"`
+	Path     string       `toml:"path"`
+	Ignores  []string     `toml:"ignores"`
+	Sync     SyncConfig   `toml:"sync"`
+	Record   RecordConfig `toml:"record"`
+	UseColor bool         `toml:"use_color"`
 }
 
 type SyncConfig struct{}
 
 type RecordConfig struct {
-	Visible []string `toml:"visible"`
+	Visible  []string `toml:"visible"`
+	StatusOK string   `toml:"status_ok"`
+	StatusNG string   `toml:"status_ng"`
 }
 
 // ScreenConfig is only for Screen
@@ -94,7 +98,29 @@ func (cfg *Config) LoadFile(file string) error {
 
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
 	cfg.History.Ignores = []string{}
+	cfg.History.UseColor = false
 	cfg.History.Record.Visible = []string{"{{.Command}}"}
+	cfg.History.Record.StatusOK = "o"
+	cfg.History.Record.StatusNG = "x"
 
 	return toml.NewEncoder(f).Encode(cfg)
+}
+
+func CheckIgnores(command string) bool {
+	command = strings.Split(command, " ")[0]
+	for _, ignore := range Conf.History.Ignores {
+		if ignore == command {
+			return true
+		}
+	}
+	return false
+}
+
+func KeyCol(vs []string) int {
+	for i, v := range vs {
+		if v == "{{.Command}}" {
+			return i
+		}
+	}
+	return -1
 }

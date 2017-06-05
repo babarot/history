@@ -3,13 +3,17 @@ package history
 import (
 	"bytes"
 	"fmt"
+	"os/exec"
 	"sort"
 	"strings"
 	tt "text/template"
 	"time"
 
 	ltsv "github.com/Songmu/go-ltsv"
+	"github.com/b4b4r07/history/config"
 	"github.com/dustin/go-humanize"
+	"github.com/fatih/color"
+	pipeline "github.com/mattn/go-pipeline"
 )
 
 type Record struct {
@@ -33,8 +37,9 @@ func (r *Record) SetDir(arg string)     { r.Dir = arg }
 func (r *Record) SetBranch(arg string)  { r.Branch = arg }
 func (r *Record) SetStatus(arg int)     { r.Status = arg }
 
-func (r *Record) Render(visible []string) (line string) {
+func (r *Record) Render() (line string) {
 	var tmpl *tt.Template
+	visible := config.Conf.History.Record.Visible
 	if len(visible) == 0 {
 		// default
 		visible = []string{"{{.Command}}"}
@@ -53,10 +58,25 @@ func (r *Record) Render(visible []string) (line string) {
 		err := tmpl.Execute(&b, map[string]interface{}{
 			"Date":    r.Date.Format("2006-01-02"),
 			"Time":    fmt.Sprintf("%-15s", humanize.Time(r.Date)),
-			"Command": r.Command,
+			"Command": r.renderCommand(),
 			"Dir":     r.Dir,
 			"Branch":  r.Branch,
-			"Status":  r.Status,
+			"Status": func(status int) string {
+				switch status {
+				case 0:
+					ok := config.Conf.History.Record.StatusOK
+					if ok == "" {
+						ok = "o"
+					}
+					return color.GreenString(ok)
+				default:
+					ng := config.Conf.History.Record.StatusNG
+					if ng == "" {
+						ng = "x"
+					}
+					return color.RedString(ng)
+				}
+			}(r.Status),
 		})
 		if err != nil {
 			return
@@ -64,6 +84,25 @@ func (r *Record) Render(visible []string) (line string) {
 		line = b.String()
 	}
 	return
+}
+
+func (r *Record) renderCommand() string {
+	if !config.Conf.History.UseColor {
+		return r.Command
+	}
+	highlight, err := exec.LookPath("highlight")
+	if err != nil {
+		return r.Command
+	}
+	// TODO: more faster
+	out, err := pipeline.Output(
+		[]string{"echo", r.Command},
+		[]string{highlight, "-S", "sh", "-O", "ansi"},
+	)
+	if err != nil {
+		return r.Command
+	}
+	return strings.TrimSuffix(string(out), "\n")
 }
 
 func (r *Record) Unmarshal(line string) Record {
@@ -145,4 +184,8 @@ func (r Records) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
 
 func (r *Records) Sort() {
 	sort.Sort(*r)
+}
+
+func init() {
+	color.NoColor = false
 }

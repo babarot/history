@@ -5,21 +5,24 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
 )
+
+var Conf config.Config
 
 type Screen struct {
 	Lines   []string
 	Records []history.Record
 }
 
-func NewScreen(c ScreenConfig) (s *Screen, err error) {
+func NewScreen(c config.ScreenConfig) (s *Screen, err error) {
 	var (
 		lines   []string
 		records history.Records
 	)
 
-	h, err := history.Load(Conf.History.Path)
+	h, err := history.Load(config.Conf.History.Path)
 	if err != nil {
 		return
 	}
@@ -39,7 +42,7 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 		if c.Branch != "" && c.Branch != record.Branch {
 			continue
 		}
-		lines = append(lines, record.Render(Conf.History.Record.Visible))
+		lines = append(lines, record.Render())
 		records = append(records, record)
 	}
 
@@ -58,7 +61,7 @@ type Lines []Line
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
 	var record history.Record
-	idx := Index(Conf.History.Record.Visible, "{{.Command}}")
+	idx := config.KeyCol(config.Conf.History.Record.Visible)
 	if idx > len(l) {
 		return &Line{}, errors.New("invalid index; review config visible")
 	}
@@ -89,7 +92,7 @@ func (s *Screen) Select() (lines Lines, err error) {
 		err = errors.New("no text to display")
 		return
 	}
-	selectcmd := Conf.Core.SelectCmd
+	selectcmd := config.Conf.Core.SelectCmd
 	if selectcmd == "" {
 		err = errors.New("no selectcmd specified")
 		return

@@ -2,7 +2,8 @@ package cli
 
 import (
 	"errors"
-	"strings"
+
+	"github.com/b4b4r07/history/config"
 )
 
 var (
@@ -10,29 +11,10 @@ var (
 )
 
 func Edit(fname string) error {
-	editor := Conf.Core.Editor
+	editor := config.Conf.Core.Editor
 	if editor == "" {
 		return ErrConfigEditor
 	}
 
 	return Run(editor, fname)
-}
-
-func IgnoringWord(command string) bool {
-	command = strings.Split(command, " ")[0]
-	for _, ignore := range Conf.History.Ignores {
-		if ignore == command {
-			return true
-		}
-	}
-	return false
-}
-
-func Index(vs []string, t string) int {
-	for i, v := range vs {
-		if v == t {
-			return i
-		}
-	}
-	return -1
 }

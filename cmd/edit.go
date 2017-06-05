@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/b4b4r07/history/cli"
+	"github.com/b4b4r07/history/config"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +14,7 @@ var editCmd = &cobra.Command{
 }
 
 func edit(cmd *cobra.Command, args []string) error {
-	return cli.Edit(cli.Conf.History.Path)
+	return cli.Edit(config.Conf.History.Path)
 }
 
 func init() {
