@@ -21,10 +21,11 @@ type CoreConfig struct {
 }
 
 type HistoryConfig struct {
-	Path    string       `toml:"path"`
-	Ignores []string     `toml:"ignores"`
-	Sync    SyncConfig   `toml:"sync"`
-	Record  RecordConfig `toml:"record"`
+	Path     string       `toml:"path"`
+	Ignores  []string     `toml:"ignores"`
+	Sync     SyncConfig   `toml:"sync"`
+	Record   RecordConfig `toml:"record"`
+	UseColor bool         `toml:"use_color"`
 }
 
 type SyncConfig struct{}
@@ -95,6 +96,7 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
 	cfg.History.Ignores = []string{}
 	cfg.History.Record.Visible = []string{"{{.Command}}"}
+	cfg.History.UseColor = false
 
 	return toml.NewEncoder(f).Encode(cfg)
 }

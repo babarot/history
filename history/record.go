@@ -2,6 +2,7 @@ package history
 
 import (
 	"bytes"
+	"fmt"
 	"sort"
 	"strings"
 	tt "text/template"
@@ -9,12 +10,8 @@ import (
 
 	ltsv "github.com/Songmu/go-ltsv"
 	"github.com/dustin/go-humanize"
-	"github.com/fatih/color"
+	pipeline "github.com/mattn/go-pipeline"
 )
-
-func init() {
-	color.NoColor = false
-}
 
 type Record struct {
 	Date    time.Time
@@ -37,7 +34,7 @@ func (r *Record) SetDir(arg string)     { r.Dir = arg }
 func (r *Record) SetBranch(arg string)  { r.Branch = arg }
 func (r *Record) SetStatus(arg int)     { r.Status = arg }
 
-func (r *Record) Render(visible []string) (line string) {
+func (r *Record) Render(visible []string, color bool) (line string) {
 	var tmpl *tt.Template
 	if len(visible) == 0 {
 		// default
@@ -51,13 +48,25 @@ func (r *Record) Render(visible []string) (line string) {
 	if err != nil {
 		return
 	}
+	command := r.Command
+	if color {
+		// TODO: more faster
+		out, err := pipeline.Output(
+			[]string{"echo", command},
+			[]string{"highlight", "-S", "sh", "-O", "ansi"},
+		)
+		if err != nil {
+			return
+		}
+		command = strings.TrimSuffix(string(out), "\n")
+	}
 	tmpl = t
 	if tmpl != nil {
 		var b bytes.Buffer
 		err := tmpl.Execute(&b, map[string]interface{}{
 			"Date":    r.Date.Format("2006-01-02"),
-			"Time":    color.New(color.FgBlack).Sprintf("%-15s", humanize.Time(r.Date)),
-			"Command": r.Command,
+			"Time":    fmt.Sprintf("%-15s", humanize.Time(r.Date)),
+			"Command": command,
 			"Dir":     r.Dir,
 			"Branch":  r.Branch,
 			"Status":  r.Status,

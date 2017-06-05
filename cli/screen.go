@@ -39,7 +39,7 @@ func NewScreen(c ScreenConfig) (s *Screen, err error) {
 		if c.Branch != "" && c.Branch != record.Branch {
 			continue
 		}
-		lines = append(lines, record.Render(Conf.History.Record.Visible))
+		lines = append(lines, record.Render(Conf.History.Record.Visible, Conf.History.UseColor))
 		records = append(records, record)
 	}
 
