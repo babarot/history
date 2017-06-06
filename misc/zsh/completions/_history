@@ -48,6 +48,7 @@ _history () {
                 '(--branch -b)'{--branch,-b}'=[List with branch]' \
                 '(--dir -d)'{--dir,-d}'=[List with dir]' \
                 '(--query -q)'{--query,-q}'=[List with query]' \
+                '(--columns -c)'{--columns,-c}'=[Specify columns with options]' \
                 && return 0
             ;;
         (edit)

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/b4b4r07/history/cli"
 	"github.com/b4b4r07/history/config"
@@ -36,24 +37,32 @@ func list(cmd *cobra.Command, args []string) {
 		h.Records.Dir(cli.GetDirName())
 	}
 
-	for _, arg := range args {
-		h.Records.Contains(arg)
+	if listQuery != "" {
+		h.Records.Contains(listQuery)
 	}
 
 	for _, record := range h.Records {
-		fmt.Println(record.Command)
+		if listColumns == "" {
+			fmt.Println(record.Raw())
+		} else {
+			// TODO
+			config.Conf.History.Record.Columns = strings.Split(listColumns, ",")
+			fmt.Println(record.Render())
+		}
 	}
 }
+
+var (
+	listDir     bool
+	listBranch  bool
+	listQuery   string
+	listColumns string
+)
 
 func init() {
 	RootCmd.AddCommand(listCmd)
 	listCmd.Flags().BoolVarP(&listDir, "dir", "d", false, "List with dir")
 	listCmd.Flags().BoolVarP(&listBranch, "branch", "b", false, "List with branch")
 	listCmd.Flags().StringVarP(&listQuery, "query", "q", "", "List with query")
+	listCmd.Flags().StringVarP(&listColumns, "columns", "c", "", "Specify columns with options")
 }
-
-var (
-	listDir    bool
-	listBranch bool
-	listQuery  string
-)

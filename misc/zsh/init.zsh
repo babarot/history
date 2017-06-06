@@ -28,6 +28,10 @@ if [[ -n $ZSH_HISTORY_KEYBIND_ARROW_DOWN ]]; then
     bindkey "$ZSH_HISTORY_KEYBIND_ARROW_DOWN" "__history::keybind::arrow_down"
 fi
 
+if [[ -z $ZSH_HISTORY_COLUMNS_GET_ALL ]]; then
+    export ZSH_HISTORY_COLUMNS_GET_ALL="{{.Time}},{{.Status}},{{.Command}},({{.Base}})"
+fi
+
 #
 # Configurations
 #

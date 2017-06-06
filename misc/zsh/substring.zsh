@@ -11,7 +11,7 @@ __history::substring::search_begin()
         _history_substring_search_query=$BUFFER
         _history_substring_search_query_escaped=${BUFFER//(#m)[\][()|\\*?#<>~^]/\\$MATCH}
 
-        _history_substring_search_matches=( ${(@f)"$(command history list --branch --dir "$_history_substring_search_query_escaped")"} )
+        _history_substring_search_matches=( ${(@f)"$(command history list --branch --dir --columns "{{.Command}}" --query "$_history_substring_search_query_escaped")"} )
         if [[ $#_history_substring_search_matches -eq 0 ]]; then
             _history_substring_search_matches=()
         fi

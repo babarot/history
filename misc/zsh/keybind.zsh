@@ -7,23 +7,22 @@ __history::keybind::get_by_dir()
     if [[ -n $buf ]]; then
         BUFFER="$buf"
         CURSOR=$#BUFFER
-        zle reset-prompt
     fi
+    zle reset-prompt
 }
 
 __history::keybind::get_all()
 {
-    local buf col opt
-    col="$(command history config --get "history.record.columns" | sed 's/\[//;s/\]//;s/ /,/g')"
-    if [[ ! $col =~ "{{.Base}}" ]]; then
-        opt="--columns $col,{{.Base}}"
+    local buf opt
+    if [[ -n $ZSH_HISTORY_COLUMNS_GET_ALL ]]; then
+        opt="--columns $ZSH_HISTORY_COLUMNS_GET_ALL"
     fi
     buf="$(command history search $opt --query "$LBUFFER")"
     if [[ -n $buf ]]; then
         BUFFER="$buf"
         CURSOR=$#BUFFER
-        zle reset-prompt
     fi
+    zle reset-prompt
 }
 
 __history::keybind::arrow_up()

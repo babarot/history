@@ -42,6 +42,11 @@ func (r *Record) SetDir(arg string)     { r.Dir = arg }
 func (r *Record) SetBranch(arg string)  { r.Branch = arg }
 func (r *Record) SetStatus(arg int)     { r.Status = arg }
 
+func (r *Record) Raw() string {
+	out, _ := r.Marshal()
+	return string(out)
+}
+
 func (r *Record) Render() (line string) {
 	var tmpl *tt.Template
 	columns := config.Conf.History.Record.Columns
