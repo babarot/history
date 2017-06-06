@@ -45,10 +45,6 @@ func Load(path string) (h *History, err error) {
 	}, nil
 }
 
-func (h *History) Add(r Record) {
-	h.Records = append(h.Records, r)
-}
-
 func (h *History) Save() error {
 	file, err := os.OpenFile(h.Path, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
