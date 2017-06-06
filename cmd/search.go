@@ -16,7 +16,14 @@ var searchCmd = &cobra.Command{
 }
 
 func search(cmd *cobra.Command, args []string) error {
-	screen, err := cli.NewScreen(searchConfig())
+	if config.Conf.Screen.FilterDir {
+		config.Conf.Screen.Dir = cli.GetDirName()
+	}
+	if config.Conf.Screen.FilterBranch {
+		config.Conf.Screen.Branch = cli.GetBranchName()
+	}
+
+	screen, err := cli.NewScreen()
 	if err != nil {
 		return err
 	}
@@ -35,34 +42,10 @@ func search(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func searchConfig() config.ScreenConfig {
-	cfg := config.ScreenConfig{}
-	if searchDir {
-		cfg.Dir = cli.GetDirName()
-	}
-	if searchBranch {
-		cfg.Branch = cli.GetBranchName()
-	}
-	if searchQuery != "" {
-		cfg.Query = searchQuery
-	}
-	if searchColumns != "" {
-		cfg.Columns = searchColumns
-	}
-	return cfg
-}
-
-var (
-	searchDir     bool
-	searchBranch  bool
-	searchQuery   string
-	searchColumns string
-)
-
 func init() {
 	RootCmd.AddCommand(searchCmd)
-	searchCmd.Flags().BoolVarP(&searchDir, "dir", "d", false, "Search with dir")
-	searchCmd.Flags().BoolVarP(&searchBranch, "branch", "b", false, "Search with branch")
-	searchCmd.Flags().StringVarP(&searchQuery, "query", "q", "", "Search with query")
-	searchCmd.Flags().StringVarP(&searchColumns, "columns", "c", "", "Specify columns with options")
+	searchCmd.Flags().BoolVarP(&config.Conf.Screen.FilterDir, "dir", "d", config.Conf.Screen.FilterDir, "Search with dir")
+	searchCmd.Flags().BoolVarP(&config.Conf.Screen.FilterBranch, "branch", "b", config.Conf.Screen.FilterBranch, "Search with branch")
+	searchCmd.Flags().StringVarP(&config.Conf.Screen.Query, "query", "q", config.Conf.Screen.Query, "Search with query")
+	searchCmd.Flags().StringVarP(&config.Conf.Screen.Columns, "columns", "c", config.Conf.Screen.Columns, "Specify columns with options")
 }

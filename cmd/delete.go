@@ -15,7 +15,14 @@ var deleteCmd = &cobra.Command{
 }
 
 func delete(cmd *cobra.Command, args []string) error {
-	screen, err := cli.NewScreen(deleteConfig())
+	if config.Conf.Screen.FilterDir {
+		config.Conf.Screen.Dir = cli.GetDirName()
+	}
+	if config.Conf.Screen.FilterBranch {
+		config.Conf.Screen.Branch = cli.GetBranchName()
+	}
+
+	screen, err := cli.NewScreen()
 	if err != nil {
 		return err
 	}
@@ -39,34 +46,14 @@ func delete(cmd *cobra.Command, args []string) error {
 	return h.Save()
 }
 
-func deleteConfig() config.ScreenConfig {
-	cfg := config.ScreenConfig{}
-	if deleteDir {
-		cfg.Dir = cli.GetDirName()
-	}
-	if deleteBranch {
-		cfg.Branch = cli.GetBranchName()
-	}
-	if deleteQuery != "" {
-		cfg.Query = deleteQuery
-	}
-	if deleteColumns != "" {
-		cfg.Columns = deleteColumns
-	}
-	return cfg
-}
-
 var (
-	deleteDir     bool
-	deleteBranch  bool
-	deleteQuery   string
-	deleteColumns string
+	deleteDir, deleteBranch bool
 )
 
 func init() {
 	RootCmd.AddCommand(deleteCmd)
-	deleteCmd.Flags().BoolVarP(&deleteDir, "dir", "d", false, "delete with dir")
-	deleteCmd.Flags().BoolVarP(&deleteBranch, "branch", "b", false, "delete with branch")
-	deleteCmd.Flags().StringVarP(&deleteQuery, "query", "q", "", "delete with query")
-	deleteCmd.Flags().StringVarP(&deleteColumns, "columns", "c", "", "Specify columns with options")
+	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterDir, "dir", "d", config.Conf.Screen.FilterDir, "Delete with dir")
+	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterBranch, "branch", "b", config.Conf.Screen.FilterBranch, "Delete with branch")
+	deleteCmd.Flags().StringVarP(&config.Conf.Screen.Query, "query", "q", config.Conf.Screen.Query, "Delete with query")
+	deleteCmd.Flags().StringVarP(&config.Conf.Screen.Columns, "columns", "c", config.Conf.Screen.Columns, "Specify columns with options")
 }

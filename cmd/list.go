@@ -29,40 +29,33 @@ func list(cmd *cobra.Command, args []string) {
 	h.Records.Unique()
 	h.Records.Reverse()
 
-	if listBranch {
-		h.Records.Branch(cli.GetBranchName())
-	}
-
-	if listDir {
+	if config.Conf.Screen.FilterDir {
 		h.Records.Dir(cli.GetDirName())
 	}
 
-	if listQuery != "" {
-		h.Records.Contains(listQuery)
+	if config.Conf.Screen.FilterBranch {
+		h.Records.Branch(cli.GetBranchName())
+	}
+
+	if config.Conf.Screen.Query != "" {
+		h.Records.Contains(config.Conf.Screen.Query)
 	}
 
 	for _, record := range h.Records {
-		if listColumns == "" {
+		if config.Conf.Screen.Columns == "" {
 			fmt.Println(record.Raw())
 		} else {
 			// TODO
-			config.Conf.History.Record.Columns = strings.Split(listColumns, ",")
+			config.Conf.History.Record.Columns = strings.Split(config.Conf.Screen.Columns, ",")
 			fmt.Println(record.Render())
 		}
 	}
 }
 
-var (
-	listDir     bool
-	listBranch  bool
-	listQuery   string
-	listColumns string
-)
-
 func init() {
 	RootCmd.AddCommand(listCmd)
-	listCmd.Flags().BoolVarP(&listDir, "dir", "d", false, "List with dir")
-	listCmd.Flags().BoolVarP(&listBranch, "branch", "b", false, "List with branch")
-	listCmd.Flags().StringVarP(&listQuery, "query", "q", "", "List with query")
-	listCmd.Flags().StringVarP(&listColumns, "columns", "c", "", "Specify columns with options")
+	listCmd.Flags().BoolVarP(&config.Conf.Screen.FilterDir, "dir", "d", config.Conf.Screen.FilterDir, "List with dir")
+	listCmd.Flags().BoolVarP(&config.Conf.Screen.FilterBranch, "branch", "b", config.Conf.Screen.FilterBranch, "List with branch")
+	listCmd.Flags().StringVarP(&config.Conf.Screen.Query, "query", "q", config.Conf.Screen.Query, "List with query")
+	listCmd.Flags().StringVarP(&config.Conf.Screen.Columns, "columns", "c", config.Conf.Screen.Columns, "Specify columns with options")
 }

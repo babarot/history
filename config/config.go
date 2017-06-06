@@ -13,6 +13,7 @@ import (
 type Config struct {
 	Core    CoreConfig    `toml:"core"`
 	History HistoryConfig `toml:"history"`
+	Screen  ScreenConfig  `toml:"screen"`
 }
 
 type CoreConfig struct {
@@ -37,12 +38,14 @@ type RecordConfig struct {
 	StatusNG string   `toml:"status_ng"`
 }
 
-// ScreenConfig is only for Screen
 type ScreenConfig struct {
-	Dir     string
-	Branch  string
-	Query   string
-	Columns string
+	FilterDir    bool `toml:"filter_dir"`
+	FilterBranch bool `toml:"filter_branch"`
+
+	Dir     string `toml:"-"`
+	Branch  string `toml:"-"`
+	Query   string `toml:"-"`
+	Columns string `toml:"-"`
 }
 
 var Conf Config
@@ -100,9 +103,12 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
 	cfg.History.Ignores = []string{}
 	cfg.History.UseColor = false
-	cfg.History.Record.Columns = []string{"{{.Command}}"}
-	cfg.History.Record.StatusOK = "o"
+	cfg.History.Record.Columns = []string{"{{.Time}}", "{{.Status}}", "{{.Command}}"}
+	cfg.History.Record.StatusOK = " "
 	cfg.History.Record.StatusNG = "x"
+
+	cfg.Screen.FilterDir = false
+	cfg.Screen.FilterBranch = false
 
 	return toml.NewEncoder(f).Encode(cfg)
 }

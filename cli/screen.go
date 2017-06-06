@@ -16,7 +16,8 @@ type Screen struct {
 	Records []history.Record
 }
 
-func NewScreen(c config.ScreenConfig) (s *Screen, err error) {
+func NewScreen() (s *Screen, err error) {
+	c := config.Conf.Screen
 	var (
 		lines   []string
 		records history.Records
@@ -52,10 +53,10 @@ func NewScreen(c config.ScreenConfig) (s *Screen, err error) {
 	}
 
 	for _, record := range h.Records {
-		if c.Dir != "" && c.Dir != record.Dir {
+		if c.FilterDir && c.Dir != record.Dir {
 			continue
 		}
-		if c.Branch != "" && c.Branch != record.Branch {
+		if c.FilterBranch && c.Branch != record.Branch {
 			continue
 		}
 		lines = append(lines, record.Render())
