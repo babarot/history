@@ -29,7 +29,7 @@ func add(cmd *cobra.Command, args []string) error {
 		return errors.New("--dir option is required")
 	}
 
-	// skip adding if the command is registed as ignoring word
+	// Skip adding if the command is registed as ignoring word
 	if config.CheckIgnores(addCommand) {
 		return nil
 	}
@@ -38,6 +38,11 @@ func add(cmd *cobra.Command, args []string) error {
 	r.SetDir(addDir)
 	r.SetBranch(addBranch)
 	r.SetStatus(addStatus)
+
+	// Backup before adding new record
+	if err := h.Backup(); err != nil {
+		return err
+	}
 
 	// Add record to history
 	h.Add(*r)

@@ -117,8 +117,8 @@ func CheckIgnores(command string) bool {
 	return false
 }
 
-func KeyCol(vs []string) int {
-	for i, v := range vs {
+func IndexCommandColumns() int {
+	for i, v := range Conf.History.Record.Columns {
 		if v == "{{.Command}}" {
 			return i
 		}

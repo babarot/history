@@ -2,7 +2,12 @@ package history
 
 import (
 	"bufio"
+	"io"
 	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/b4b4r07/history/config"
 )
 
 type History struct {
@@ -59,4 +64,37 @@ func (h *History) Save() error {
 	}
 
 	return w.Flush()
+}
+
+func (h *History) Backup() (err error) {
+	if h.Records.Latest().Date.Day() == time.Now().Day() {
+		// no need to backup
+		return nil
+	}
+
+	dir, err := config.GetDefaultDir()
+	if err != nil {
+		return
+	}
+
+	dir = filepath.Join(dir, ".backup", time.Now().Format("2006/01/02"))
+	err = os.MkdirAll(dir, 0700)
+	if err != nil {
+		return
+	}
+
+	src, err := os.Open(h.Path)
+	if err != nil {
+		return
+	}
+	defer src.Close()
+
+	dst, err := os.Create(filepath.Join(dir, filepath.Base(h.Path)))
+	if err != nil {
+		return
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	return err
 }
