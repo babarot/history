@@ -9,6 +9,8 @@ _history () {
     'edit:Edit your history file directly'
     'list:List the history'
     'search:Search the command from the history file'
+    'delete:Delete the record from history file'
+    'sync:Sync the history file with gist'
     'help:Show help for any command'
     )
 
@@ -51,7 +53,16 @@ _history () {
                 '(--columns -c)'{--columns,-c}'=[Specify columns with options]' \
                 && return 0
             ;;
-        (edit)
+        (delete)
+            _arguments \
+                '(- :)--help[Show this help and exit]' \
+                '(--branch -b)'{--branch,-b}'=[Delete with branch]' \
+                '(--dir -d)'{--dir,-d}'=[Delete with dir]' \
+                '(--query -q)'{--query,-q}'=[Delete with query]' \
+                '(--columns -c)'{--columns,-c}'=[Specify columns with options]' \
+                && return 0
+            ;;
+        (edit|sync)
             _arguments \
                 '(- :)--help[Show this help and exit]' \
                 && return 0

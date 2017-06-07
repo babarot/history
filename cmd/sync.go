@@ -8,8 +8,8 @@ import (
 
 var syncCmd = &cobra.Command{
 	Use:   "sync",
-	Short: "Sync history",
-	Long:  "Sync history",
+	Short: "Sync the history file with gist",
+	Long:  "Sync the history file with gist",
 	RunE:  sync,
 }
 

@@ -9,8 +9,8 @@ import (
 
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "delete the command from the history file",
-	Long:  "delete the command from the history file",
+	Short: "Delete the record from history file",
+	Long:  "Delete the selected record from history file",
 	RunE:  delete,
 }
 
