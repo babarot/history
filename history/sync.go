@@ -1,12 +1,14 @@
 package history
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/b4b4r07/history/config"
@@ -28,66 +30,50 @@ func getClient() (gc *github.Client, err error) {
 	return github.NewClient(tc), nil
 }
 
-type Diff struct {
-	Type    string
-	Content string
-}
-
-func (h *History) Compare() (d Diff, err error) {
-	fi, err := os.Stat(h.Path)
-	if err != nil {
-		err = errors.New("history file not found")
-		return
-	}
-
-	ctx := context.Background()
-	gist, _, err := h.client.Gists.Get(ctx, config.Conf.History.Sync.ID)
-	if err != nil {
-		return
-	}
-	var (
-		remoteContent, localContent string
-	)
-	out, err := ioutil.ReadFile(h.Path)
-	if err != nil {
-		return
-	}
-	localContent = string(out)
-	for _, file := range gist.Files {
-		if *file.Filename != filepath.Base(h.Path) {
-			err = fmt.Errorf("%s: not found on cloud", filepath.Base(h.Path))
-			return
+func (h *History) Merge(a, b string) {
+	lines := strings.Split(a+b, "\n")
+	var records Records
+	for _, line := range lines {
+		if line == "" {
+			continue
 		}
-		remoteContent = *file.Content
+		var r Record
+		r.Unmarshal(line)
+		records = append(records, r)
 	}
-	if remoteContent == localContent {
-		d = Diff{Type: "equal", Content: ""}
-		return
+	records.Sort()
+	rs := make(Records, 0)
+	encountered := map[Record]bool{}
+	for _, record := range records {
+		if !encountered[record] {
+			encountered[record] = true
+			rs = append(rs, record)
+		}
 	}
-
-	local := fi.ModTime().UTC()
-	remote := gist.UpdatedAt.UTC()
-
-	switch {
-	case local.After(remote):
-		return Diff{Type: "local", Content: localContent}, nil
-	case remote.After(local):
-		return Diff{Type: "remote", Content: remoteContent}, nil
-	default:
-	}
-	d = Diff{Type: "equal", Content: ""}
-	return
+	h.Records = rs
 }
 
-func (h *History) updateLocal(content string) error {
-	return ioutil.WriteFile(h.Path, []byte(content), os.ModePerm)
+func (h *History) updateLocal() error {
+	var b bytes.Buffer
+	for _, record := range h.Records {
+		line, _ := record.Marshal()
+		b.Write(line)
+		b.WriteString("\n")
+	}
+	return ioutil.WriteFile(h.Path, b.Bytes(), os.ModePerm)
 }
 
-func (h *History) updateRemote(content string) error {
+func (h *History) updateRemote() error {
+	var b bytes.Buffer
+	for _, record := range h.Records {
+		line, _ := record.Marshal()
+		b.Write(line)
+		b.WriteString("\n")
+	}
 	gist := github.Gist{
 		Files: map[github.GistFilename]github.GistFile{
 			github.GistFilename(filepath.Base(h.Path)): {
-				Content: github.String(content),
+				Content: github.String(b.String()),
 			},
 		},
 	}
@@ -129,14 +115,46 @@ func (h *History) getGistID() (id string, err error) {
 	return
 }
 
+func (h *History) sync() (err error) {
+	gist, _, err := h.client.Gists.Get(context.Background(), config.Conf.History.Sync.ID)
+	if err != nil {
+		return
+	}
+
+	var (
+		remoteContent, localContent string
+	)
+	out, err := ioutil.ReadFile(h.Path)
+	if err != nil {
+		return
+	}
+	localContent = string(out)
+	for _, file := range gist.Files {
+		if *file.Filename != filepath.Base(h.Path) {
+			err = fmt.Errorf("%s: not found on cloud", filepath.Base(h.Path))
+			return
+		}
+		remoteContent = *file.Content
+	}
+
+	h.Merge(remoteContent, localContent)
+	if err := h.updateLocal(); err != nil {
+		return err
+	}
+	if err := h.updateRemote(); err != nil {
+		return err
+	}
+
+	return
+}
+
 func (h *History) Sync() (err error) {
-	var msg string
 	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
 	s.Writer = os.Stderr
 	s.Start()
 	defer func() {
-		if len(msg) > 0 {
-			fmt.Println(msg)
+		if err == nil {
+			fmt.Fprintln(os.Stderr, "Synced!")
 		}
 	}()
 	defer s.Stop()
@@ -163,24 +181,9 @@ func (h *History) Sync() (err error) {
 		}
 	}
 
-	diff, err := h.Compare()
-	if err != nil {
-		return
+	if err := h.Backup(); err != nil {
+		return err
 	}
 
-	switch diff.Type {
-	case "local":
-		msg = "Uploaded"
-		return h.updateRemote(diff.Content)
-	case "remote":
-		msg = "Downloaded"
-		return h.updateLocal(diff.Content)
-	case "equal":
-		// Do nothing
-	case "":
-		// Locally but not remote
-	default:
-	}
-
-	return
+	return h.sync()
 }

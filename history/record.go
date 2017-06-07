@@ -133,9 +133,8 @@ func (r *Record) renderDir() string {
 	return color.BlueString(dir)
 }
 
-func (r *Record) Unmarshal(line string) Record {
+func (r *Record) Unmarshal(line string) {
 	ltsv.Unmarshal([]byte(line), r)
-	return *r
 }
 
 func (r *Record) Marshal() ([]byte, error) {

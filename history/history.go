@@ -70,10 +70,6 @@ func (h *History) Backup() (err error) {
 		// cannot backup if no history
 		return nil
 	}
-	if h.Records.Latest().Date.Day() == time.Now().Day() {
-		// no need to backup
-		return nil
-	}
 
 	dir, err := config.GetDefaultDir()
 	if err != nil {
