@@ -29,7 +29,10 @@ type HistoryConfig struct {
 	UseColor bool         `toml:"use_color"`
 }
 
-type SyncConfig struct{}
+type SyncConfig struct {
+	ID    string `toml:"id"`
+	Token string `toml:"token"`
+}
 
 type RecordConfig struct {
 	Columns  []string `toml:"columns"`
