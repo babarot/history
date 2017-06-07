@@ -40,13 +40,8 @@ func (h *History) Compare() (d Diff, err error) {
 		return
 	}
 
-	client, err := getClient()
-	if err != nil {
-		return
-	}
-
 	ctx := context.Background()
-	gist, _, err := client.Gists.Get(ctx, config.Conf.History.Sync.ID)
+	gist, _, err := h.client.Gists.Get(ctx, config.Conf.History.Sync.ID)
 	if err != nil {
 		return
 	}
@@ -96,11 +91,7 @@ func (h *History) updateRemote(content string) error {
 			},
 		},
 	}
-	client, err := getClient()
-	if err != nil {
-		return err
-	}
-	_, _, err = client.Gists.Edit(context.Background(), config.Conf.History.Sync.ID, &gist)
+	_, _, err := h.client.Gists.Edit(context.Background(), config.Conf.History.Sync.ID, &gist)
 	return err
 }
 
@@ -115,6 +106,19 @@ func (h *History) Sync() (err error) {
 		}
 	}()
 	defer s.Stop()
+
+	h.client, err = getClient()
+	if err != nil {
+		return
+	}
+
+	if config.Conf.History.Sync.Token == "" {
+		return errors.New("config history.sync.token is missing")
+	}
+
+	if config.Conf.History.Sync.ID == "" {
+		return errors.New("config history.sync.id is missing")
+	}
 
 	diff, err := h.Compare()
 	if err != nil {

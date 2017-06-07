@@ -8,11 +8,14 @@ import (
 	"time"
 
 	"github.com/b4b4r07/history/config"
+	"github.com/google/go-github/github"
 )
 
 type History struct {
 	Records Records
 	Path    string
+
+	client *github.Client
 }
 
 func Load(path string) (h *History, err error) {
