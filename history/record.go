@@ -142,6 +142,26 @@ func (r *Record) Marshal() ([]byte, error) {
 	return b, nil
 }
 
+func (rs *Records) Add(r Record) {
+	*rs = append(*rs, r)
+}
+
+func (rs *Records) Delete(r Record) {
+	*rs = *rs.Reduce(func(rr Record) bool {
+		return rr.Command == r.Command && rr.Dir == r.Dir && rr.Branch == r.Branch
+	})
+}
+
+func (r *Records) Reduce(fn func(Record) bool) *Records {
+	records := make(Records, 0)
+	for _, record := range *r {
+		if !fn(record) {
+			records = append(records, record)
+		}
+	}
+	return &records
+}
+
 func (r *Records) Filter(fn func(Record) bool) *Records {
 	records := make(Records, 0)
 	for _, record := range *r {

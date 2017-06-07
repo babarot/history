@@ -43,9 +43,7 @@ func add(cmd *cobra.Command, args []string) error {
 	if err := h.Backup(); err != nil {
 		return err
 	}
-
-	// Add record to history
-	h.Add(*r)
+	h.Records.Add(*r)
 
 	return h.Save()
 }
