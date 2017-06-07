@@ -124,6 +124,7 @@ func (cfg *Config) LoadFile(file string) error {
 
 	cfg.Screen.FilterDir = false
 	cfg.Screen.FilterBranch = false
+	cfg.Screen.FilterHostname = false
 
 	return toml.NewEncoder(f).Encode(cfg)
 }

@@ -112,6 +112,43 @@ func (h *History) getGistID() (id string, err error) {
 		}
 	}
 
+	// Case that couldn't be found
+	if id == "" {
+		id, err = h.create()
+	}
+
+	return
+}
+
+func (h *History) create() (id string, err error) {
+	out, err := ioutil.ReadFile(h.Path)
+	if err != nil {
+		return
+	}
+	localContent := string(out)
+	var (
+		files = map[github.GistFilename]github.GistFile{
+			github.GistFilename(filepath.Base(h.Path)): {
+				Content: github.String(localContent),
+			},
+		}
+		public = false
+		desc   = ""
+	)
+	item, resp, err := h.client.Gists.Create(context.Background(), &github.Gist{
+		Files:       files,
+		Public:      &public,
+		Description: &desc,
+	})
+	if item == nil {
+		err = errors.New("unexpected fatal error: item is nil")
+		return
+	}
+	if resp == nil {
+		err = errors.New("Try again when you have a better network connection")
+		return
+	}
+	id = *item.ID
 	return
 }
 
