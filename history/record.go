@@ -199,6 +199,9 @@ func (r *Records) Dir(dir string) {
 }
 
 func (r *Records) Latest() Record {
+	if len(*r) < 1 {
+		return Record{}
+	}
 	return (*r)[len(*r)-1]
 }
 
