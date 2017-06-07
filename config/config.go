@@ -114,6 +114,8 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.History.Record.Columns = []string{"{{.Command}}"}
 	cfg.History.Record.StatusOK = "o"
 	cfg.History.Record.StatusNG = "x"
+	cfg.History.Sync.ID = ""
+	cfg.History.Sync.Token = os.Getenv("GITHUB_TOKEN")
 
 	return toml.NewEncoder(f).Encode(cfg)
 }
