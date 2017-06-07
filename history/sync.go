@@ -95,6 +95,40 @@ func (h *History) updateRemote(content string) error {
 	return err
 }
 
+func (h *History) getGistID() (id string, err error) {
+	var items []*github.Gist
+	ctx := context.Background()
+
+	// List items from gist.github.com
+	gists, resp, err := h.client.Gists.List(ctx, "", &github.GistListOptions{})
+	if err != nil {
+		return
+	}
+	items = append(items, gists...)
+
+	// pagenation
+	for i := 2; i <= resp.LastPage; i++ {
+		gists, _, err := h.client.Gists.List(ctx, "", &github.GistListOptions{
+			ListOptions: github.ListOptions{Page: i},
+		})
+		if err != nil {
+			continue
+		}
+		items = append(items, gists...)
+	}
+
+	for _, item := range items {
+		for _, file := range item.Files {
+			if *file.Filename == filepath.Base(config.Conf.History.Path) {
+				id = *item.ID
+				break
+			}
+		}
+	}
+
+	return
+}
+
 func (h *History) Sync() (err error) {
 	var msg string
 	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
@@ -117,7 +151,16 @@ func (h *History) Sync() (err error) {
 	}
 
 	if config.Conf.History.Sync.ID == "" {
-		return errors.New("config history.sync.id is missing")
+		id, err := h.getGistID()
+		if err != nil {
+			return err
+		}
+		if id != "" {
+			config.Conf.History.Sync.ID = id
+		}
+		if err := config.Conf.Save(); err != nil {
+			return err
+		}
 	}
 
 	diff, err := h.Compare()

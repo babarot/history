@@ -72,6 +72,14 @@ func GetDefaultDir() (string, error) {
 	return dir, nil
 }
 
+func (cfg *Config) Save() error {
+	f, err := os.OpenFile(cfg.Core.TomlFile, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	return toml.NewEncoder(f).Encode(cfg)
+}
+
 func (cfg *Config) LoadFile(file string) error {
 	_, err := os.Stat(file)
 	if err == nil {
