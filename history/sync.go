@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/b4b4r07/history/config"
+	"github.com/briandowns/spinner"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
@@ -27,7 +28,12 @@ func getClient() (gc *github.Client, err error) {
 	return github.NewClient(tc), nil
 }
 
-func (h *History) Compare() (kind, content string, err error) {
+type Diff struct {
+	Type    string
+	Content string
+}
+
+func (h *History) Compare() (d Diff, err error) {
 	fi, err := os.Stat(h.Path)
 	if err != nil {
 		err = errors.New("history file not found")
@@ -54,12 +60,14 @@ func (h *History) Compare() (kind, content string, err error) {
 	localContent = string(out)
 	for _, file := range gist.Files {
 		if *file.Filename != filepath.Base(h.Path) {
-			return "", "", fmt.Errorf("%s: not found on cloud", filepath.Base(h.Path))
+			err = fmt.Errorf("%s: not found on cloud", filepath.Base(h.Path))
+			return
 		}
 		remoteContent = *file.Content
 	}
 	if remoteContent == localContent {
-		return "equal", "", nil
+		d = Diff{Type: "equal", Content: ""}
+		return
 	}
 
 	local := fi.ModTime().UTC()
@@ -67,13 +75,13 @@ func (h *History) Compare() (kind, content string, err error) {
 
 	switch {
 	case local.After(remote):
-		return "local", localContent, nil
+		return Diff{Type: "local", Content: localContent}, nil
 	case remote.After(local):
-		return "remote", remoteContent, nil
+		return Diff{Type: "remote", Content: remoteContent}, nil
 	default:
 	}
-
-	return "equal", "", nil
+	d = Diff{Type: "equal", Content: ""}
+	return
 }
 
 func (h *History) updateLocal(content string) error {
@@ -83,7 +91,7 @@ func (h *History) updateLocal(content string) error {
 func (h *History) updateRemote(content string) error {
 	gist := github.Gist{
 		Files: map[github.GistFilename]github.GistFile{
-			github.GistFilename(filepath.Base(h.Path)): github.GistFile{
+			github.GistFilename(filepath.Base(h.Path)): {
 				Content: github.String(content),
 			},
 		},
@@ -97,21 +105,35 @@ func (h *History) updateRemote(content string) error {
 }
 
 func (h *History) Sync() (err error) {
-	kind, content, err := h.Compare()
+	var msg string
+	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
+	s.Writer = os.Stderr
+	s.Start()
+	defer func() {
+		if len(msg) > 0 {
+			fmt.Println(msg)
+		}
+	}()
+	defer s.Stop()
+
+	diff, err := h.Compare()
 	if err != nil {
 		return
 	}
-	log.Print(kind)
-	switch kind {
+
+	switch diff.Type {
 	case "local":
-		return h.updateRemote(content)
+		msg = "Uploaded"
+		return h.updateRemote(diff.Content)
 	case "remote":
-		return h.updateLocal(content)
+		msg = "Downloaded"
+		return h.updateLocal(diff.Content)
 	case "equal":
 		// Do nothing
 	case "":
 		// Locally but not remote
 	default:
 	}
+
 	return
 }
