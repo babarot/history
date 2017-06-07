@@ -30,7 +30,10 @@ type HistoryConfig struct {
 	UseColor bool         `toml:"use_color"`
 }
 
-type SyncConfig struct{}
+type SyncConfig struct {
+	ID    string `toml:"id"`
+	Token string `toml:"token"`
+}
 
 type RecordConfig struct {
 	Columns  []string `toml:"columns"`
@@ -72,6 +75,14 @@ func GetDefaultDir() (string, error) {
 	return dir, nil
 }
 
+func (cfg *Config) Save() error {
+	f, err := os.OpenFile(cfg.Core.TomlFile, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	return toml.NewEncoder(f).Encode(cfg)
+}
+
 func (cfg *Config) LoadFile(file string) error {
 	_, err := os.Stat(file)
 	if err == nil {
@@ -106,6 +117,8 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.History.Record.Columns = []string{"{{.Time}}", "{{.Status}}", "{{.Command}}"}
 	cfg.History.Record.StatusOK = " "
 	cfg.History.Record.StatusNG = "x"
+	cfg.History.Sync.ID = ""
+	cfg.History.Sync.Token = os.Getenv("GITHUB_TOKEN")
 
 	cfg.Screen.FilterDir = false
 	cfg.Screen.FilterBranch = false
