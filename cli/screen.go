@@ -59,6 +59,9 @@ func NewScreen() (s *Screen, err error) {
 		if c.FilterBranch && c.Branch != record.Branch {
 			continue
 		}
+		if c.FilterHostname && c.Hostname != record.BHostname {
+			continue
+		}
 		lines = append(lines, record.Render())
 		records = append(records, record)
 	}

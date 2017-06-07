@@ -22,18 +22,21 @@ import (
 )
 
 type Record struct {
-	Date    time.Time
-	Command string
-	Dir     string
-	Branch  string
-	Status  int
+	Date     time.Time
+	Command  string
+	Dir      string
+	Branch   string
+	Status   int
+	Hostname string
 }
 
 type Records []Record
 
 func NewRecord() *Record {
+	hostname, _ := os.Hostname()
 	return &Record{
-		Date: time.Now(),
+		Date:     time.Now(),
+		Hostname: hostname,
 	}
 }
 
@@ -89,6 +92,7 @@ func (r *Record) Render() (line string) {
 					return color.RedString(ng)
 				}
 			}(r.Status),
+			"Hostname": r.Hostname,
 		})
 		if err != nil {
 			return

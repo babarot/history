@@ -88,3 +88,8 @@ func GetDirName() string {
 	s, _ := os.Getwd()
 	return s
 }
+
+func GetHostName() string {
+	s, _ := os.Hostname()
+	return s
+}
