@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"time"
 
 	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
@@ -16,7 +17,7 @@ var addCmd = &cobra.Command{
 }
 
 func add(cmd *cobra.Command, args []string) error {
-	h, err := history.Load(config.Conf.History.Path)
+	h, err := history.Load()
 	if err != nil {
 		return err
 	}
@@ -40,8 +41,11 @@ func add(cmd *cobra.Command, args []string) error {
 	r.SetStatus(addStatus)
 
 	// Backup before adding new record
-	if err := h.Backup(); err != nil {
-		return err
+	// However don't backup many times on the same day
+	if h.Records.Latest().Date.Day() != time.Now().Day() {
+		if err := h.Backup(); err != nil {
+			return err
+		}
 	}
 	h.Records.Add(*r)
 

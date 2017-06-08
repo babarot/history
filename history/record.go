@@ -22,18 +22,21 @@ import (
 )
 
 type Record struct {
-	Date    time.Time
-	Command string
-	Dir     string
-	Branch  string
-	Status  int
+	Date     time.Time
+	Command  string
+	Dir      string
+	Branch   string
+	Status   int
+	Hostname string
 }
 
 type Records []Record
 
 func NewRecord() *Record {
+	hostname, _ := os.Hostname()
 	return &Record{
-		Date: time.Now(),
+		Date:     time.Now(),
+		Hostname: hostname,
 	}
 }
 
@@ -89,6 +92,7 @@ func (r *Record) Render() (line string) {
 					return color.RedString(ng)
 				}
 			}(r.Status),
+			"Hostname": r.Hostname,
 		})
 		if err != nil {
 			return
@@ -123,21 +127,20 @@ func (r *Record) renderDir() string {
 		w = 20
 	}
 	dir := r.Dir
-	if len(r.Dir) > w/3 {
-		dir = pathshorten.Run(r.Dir)
+	if len(dir) > w/3 {
+		dir = pathshorten.Run(dir)
 	}
 	return color.BlueString(dir)
 }
 
-func (r *Record) Unmarshal(line string) Record {
+func (r *Record) Unmarshal(line string) {
 	ltsv.Unmarshal([]byte(line), r)
-	return *r
 }
 
-func (r *Record) Marshal() ([]byte, error) {
+func (r *Record) Marshal() (line []byte, err error) {
 	b, err := ltsv.Marshal(r)
 	if err != nil {
-		return []byte{}, err
+		return
 	}
 	return b, nil
 }
@@ -190,14 +193,6 @@ func (r *Records) Reverse() {
 		rs = append(rs, (*r)[i])
 	}
 	*r = rs
-}
-
-func (r *Records) Grep(words []string) {
-	for _, word := range words {
-		*r = *r.Filter(func(r Record) bool {
-			return strings.HasPrefix(r.Command, word)
-		})
-	}
 }
 
 func (r *Records) Contains(word string) {

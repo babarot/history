@@ -18,8 +18,9 @@ type History struct {
 	client *github.Client
 }
 
-func Load(path string) (h *History, err error) {
+func Load() (h *History, err error) {
 	var records []Record
+	path := config.Conf.History.Path
 	h = &History{Records: Records{}, Path: path}
 
 	file, err := os.Open(path)
@@ -68,10 +69,6 @@ func (h *History) Save() error {
 func (h *History) Backup() (err error) {
 	if _, err := os.Stat(h.Path); err != nil {
 		// cannot backup if no history
-		return nil
-	}
-	if h.Records.Latest().Date.Day() == time.Now().Day() {
-		// no need to backup
 		return nil
 	}
 

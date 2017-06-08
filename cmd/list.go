@@ -19,7 +19,7 @@ var listCmd = &cobra.Command{
 }
 
 func list(cmd *cobra.Command, args []string) {
-	h, err := history.Load(config.Conf.History.Path)
+	h, err := history.Load()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -32,11 +32,12 @@ func list(cmd *cobra.Command, args []string) {
 	if config.Conf.Screen.FilterDir {
 		h.Records.Dir(cli.GetDirName())
 	}
-
 	if config.Conf.Screen.FilterBranch {
 		h.Records.Branch(cli.GetBranchName())
 	}
-
+	if config.Conf.Screen.FilterHostname {
+		config.Conf.Screen.Hostname = cli.GetHostName()
+	}
 	if config.Conf.Screen.Query != "" {
 		h.Records.Contains(config.Conf.Screen.Query)
 	}
@@ -56,6 +57,7 @@ func init() {
 	RootCmd.AddCommand(listCmd)
 	listCmd.Flags().BoolVarP(&config.Conf.Screen.FilterDir, "dir", "d", config.Conf.Screen.FilterDir, "List with dir")
 	listCmd.Flags().BoolVarP(&config.Conf.Screen.FilterBranch, "branch", "b", config.Conf.Screen.FilterBranch, "List with branch")
+	listCmd.Flags().BoolVarP(&config.Conf.Screen.FilterHostname, "hostname", "p", config.Conf.Screen.FilterHostname, "List with hostname")
 	listCmd.Flags().StringVarP(&config.Conf.Screen.Query, "query", "q", config.Conf.Screen.Query, "List with query")
 	listCmd.Flags().StringVarP(&config.Conf.Screen.Columns, "columns", "c", config.Conf.Screen.Columns, "Specify columns with options")
 }

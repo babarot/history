@@ -35,31 +35,14 @@ _history () {
                 '(--status)--status=[Set status]' \
                 && return 0
             ;;
-        (search)
+        (search|list|delete)
             _arguments \
                 '(- :)--help[Show this help and exit]' \
-                '(--branch -b)'{--branch,-b}'=[Search with branch]' \
-                '(--dir -d)'{--dir,-d}'=[Search with dir]' \
-                '(--query -q)'{--query,-q}'=[Search with query]' \
-                '(--columns -c)'{--columns,-c}'=[Specify columns with options]' \
-                && return 0
-            ;;
-        (list)
-            _arguments \
-                '(- :)--help[Show this help and exit]' \
-                '(--branch -b)'{--branch,-b}'=[List with branch]' \
-                '(--dir -d)'{--dir,-d}'=[List with dir]' \
-                '(--query -q)'{--query,-q}'=[List with query]' \
-                '(--columns -c)'{--columns,-c}'=[Specify columns with options]' \
-                && return 0
-            ;;
-        (delete)
-            _arguments \
-                '(- :)--help[Show this help and exit]' \
-                '(--branch -b)'{--branch,-b}'=[Delete with branch]' \
-                '(--dir -d)'{--dir,-d}'=[Delete with dir]' \
-                '(--query -q)'{--query,-q}'=[Delete with query]' \
-                '(--columns -c)'{--columns,-c}'=[Specify columns with options]' \
+                '(--branch -b)'{--branch,-b}'=['${(C)words[1]}' with branch]' \
+                '(--dir -d)'{--dir,-d}'=['${(C)words[1]}' with dir]' \
+                '(--hostname -p)'{--hostname,-p}'=['${(C)words[1]}' with hostname]' \
+                '(--query -q)'{--query,-q}'=['${(C)words[1]}' with query]' \
+                '(--columns -c)'{--columns,-c}'=['${(C)words[1]}' columns with options]' \
                 && return 0
             ;;
         (edit|sync)

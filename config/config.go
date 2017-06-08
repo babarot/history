@@ -42,13 +42,15 @@ type RecordConfig struct {
 }
 
 type ScreenConfig struct {
-	FilterDir    bool `toml:"filter_dir"`
-	FilterBranch bool `toml:"filter_branch"`
+	FilterDir      bool `toml:"filter_dir"`
+	FilterBranch   bool `toml:"filter_branch"`
+	FilterHostname bool `toml:"filter_hostname"`
 
-	Dir     string `toml:"-"`
-	Branch  string `toml:"-"`
-	Query   string `toml:"-"`
-	Columns string `toml:"-"`
+	Dir      string `toml:"-"`
+	Branch   string `toml:"-"`
+	Hostname string `toml:"-"`
+	Query    string `toml:"-"`
+	Columns  string `toml:"-"`
 }
 
 var Conf Config
@@ -122,6 +124,7 @@ func (cfg *Config) LoadFile(file string) error {
 
 	cfg.Screen.FilterDir = false
 	cfg.Screen.FilterBranch = false
+	cfg.Screen.FilterHostname = false
 
 	return toml.NewEncoder(f).Encode(cfg)
 }

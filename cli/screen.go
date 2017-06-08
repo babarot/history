@@ -23,7 +23,7 @@ func NewScreen() (s *Screen, err error) {
 		records history.Records
 	)
 
-	h, err := history.Load(config.Conf.History.Path)
+	h, err := history.Load()
 	if err != nil {
 		return
 	}
@@ -57,6 +57,9 @@ func NewScreen() (s *Screen, err error) {
 			continue
 		}
 		if c.FilterBranch && c.Branch != record.Branch {
+			continue
+		}
+		if c.FilterHostname && c.Hostname != record.Hostname {
 			continue
 		}
 		lines = append(lines, record.Render())
