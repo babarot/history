@@ -187,7 +187,7 @@ func (h *History) sync() (err error) {
 
 func (h *History) Sync() (err error) {
 	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
-	s.Writer = os.Stderr
+	// s.Writer = os.Stderr TODO
 	s.Start()
 	defer func() {
 		if err == nil {

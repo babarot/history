@@ -1,6 +1,12 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
 	"github.com/spf13/cobra"
 )
@@ -17,9 +23,41 @@ func sync(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	if syncInterval > 0 {
+		if skipSyncFor(syncInterval) {
+			return fmt.Errorf("interval %v has not passed yet", syncInterval)
+		}
+	}
 	return h.Sync()
 }
 
+func skipSyncFor(interval time.Duration) bool {
+	file := filepath.Join(filepath.Dir(config.Conf.Core.TomlFile), ".sync")
+	f, err := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0600)
+	if err != nil {
+		// Doesn't skip if some errors occur
+		return false
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil {
+		// Doesn't skip if some errors occur
+		return false
+	}
+	if time.Now().Sub(fi.ModTime()).Hours() < interval.Hours() {
+		// Skip if the fixed time has not elapsed
+		return true
+	}
+	// Update the timestamp if sync
+	os.Chtimes(file, time.Now(), time.Now())
+	return false
+}
+
+var (
+	syncInterval time.Duration
+)
+
 func init() {
 	RootCmd.AddCommand(syncCmd)
+	syncCmd.Flags().DurationVarP(&syncInterval, "interval", "i", 0, "Sync with the interval")
 }

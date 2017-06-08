@@ -58,3 +58,7 @@ unset f
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd  "__history::history::add"
 add-zsh-hook preexec "__history::substring::reset"
+
+if [[ ${ZSH_HISTORY_AUTO_SYNC:-true} == true ]]; then
+    add-zsh-hook precmd  "__history::history::sync"
+fi

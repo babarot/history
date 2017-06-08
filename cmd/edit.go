@@ -14,7 +14,11 @@ var editCmd = &cobra.Command{
 }
 
 func edit(cmd *cobra.Command, args []string) error {
-	return cli.Edit(config.Conf.History.Path)
+	path := config.Conf.History.Path
+	if path == "" {
+		return cli.ErrConfigHistoryPath
+	}
+	return cli.Edit(path)
 }
 
 func init() {

@@ -24,7 +24,7 @@ type CoreConfig struct {
 
 type HistoryConfig struct {
 	Path     string       `toml:"path"`
-	Ignores  []string     `toml:"ignores"`
+	Ignores  []string     `toml:"ignore_words"`
 	Sync     SyncConfig   `toml:"sync"`
 	Record   RecordConfig `toml:"record"`
 	UseColor bool         `toml:"use_color"`

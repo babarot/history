@@ -9,8 +9,6 @@ import (
 	"github.com/b4b4r07/history/history"
 )
 
-var Conf config.Config
-
 type Screen struct {
 	Lines   []string
 	Records []history.Record

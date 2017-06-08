@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrConfigEditor = errors.New("config editor not set")
+	ErrConfigEditor      = errors.New("config core.editor not set")
+	ErrConfigHistoryPath = errors.New("config history.path not set")
 )
 
 func Edit(fname string) error {
