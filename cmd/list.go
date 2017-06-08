@@ -19,7 +19,7 @@ var listCmd = &cobra.Command{
 }
 
 func list(cmd *cobra.Command, args []string) {
-	h, err := history.Load(config.Conf.History.Path)
+	h, err := history.Load()
 	if err != nil {
 		os.Exit(1)
 	}

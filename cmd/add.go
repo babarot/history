@@ -17,7 +17,7 @@ var addCmd = &cobra.Command{
 }
 
 func add(cmd *cobra.Command, args []string) error {
-	h, err := history.Load(config.Conf.History.Path)
+	h, err := history.Load()
 	if err != nil {
 		return err
 	}

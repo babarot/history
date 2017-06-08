@@ -127,8 +127,8 @@ func (r *Record) renderDir() string {
 		w = 20
 	}
 	dir := r.Dir
-	if len(r.Dir) > w/3 {
-		dir = pathshorten.Run(r.Dir)
+	if len(dir) > w/3 {
+		dir = pathshorten.Run(dir)
 	}
 	return color.BlueString(dir)
 }
@@ -137,10 +137,10 @@ func (r *Record) Unmarshal(line string) {
 	ltsv.Unmarshal([]byte(line), r)
 }
 
-func (r *Record) Marshal() ([]byte, error) {
+func (r *Record) Marshal() (line []byte, err error) {
 	b, err := ltsv.Marshal(r)
 	if err != nil {
-		return []byte{}, err
+		return
 	}
 	return b, nil
 }
@@ -193,14 +193,6 @@ func (r *Records) Reverse() {
 		rs = append(rs, (*r)[i])
 	}
 	*r = rs
-}
-
-func (r *Records) Grep(words []string) {
-	for _, word := range words {
-		*r = *r.Filter(func(r Record) bool {
-			return strings.HasPrefix(r.Command, word)
-		})
-	}
 }
 
 func (r *Records) Contains(word string) {

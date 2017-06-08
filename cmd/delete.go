@@ -35,7 +35,7 @@ func delete(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	h, err := history.Load(config.Conf.History.Path)
+	h, err := history.Load()
 	if err != nil {
 		return err
 	}

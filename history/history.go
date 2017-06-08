@@ -18,8 +18,9 @@ type History struct {
 	client *github.Client
 }
 
-func Load(path string) (h *History, err error) {
+func Load() (h *History, err error) {
 	var records []Record
+	path := config.Conf.History.Path
 	h = &History{Records: Records{}, Path: path}
 
 	file, err := os.Open(path)

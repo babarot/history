@@ -23,7 +23,7 @@ func NewScreen() (s *Screen, err error) {
 		records history.Records
 	)
 
-	h, err := history.Load(config.Conf.History.Path)
+	h, err := history.Load()
 	if err != nil {
 		return
 	}
