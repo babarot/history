@@ -40,10 +40,12 @@ func NewRecord() *Record {
 	}
 }
 
-func (r *Record) SetCommand(arg string) { r.Command = arg }
-func (r *Record) SetDir(arg string)     { r.Dir = arg }
-func (r *Record) SetBranch(arg string)  { r.Branch = arg }
-func (r *Record) SetStatus(arg int)     { r.Status = arg }
+func (r *Record) SetDate(arg time.Time)  { r.Date = arg }
+func (r *Record) SetCommand(arg string)  { r.Command = arg }
+func (r *Record) SetDir(arg string)      { r.Dir = arg }
+func (r *Record) SetBranch(arg string)   { r.Branch = arg }
+func (r *Record) SetStatus(arg int)      { r.Status = arg }
+func (r *Record) SetHostname(arg string) { r.Hostname = arg }
 
 func (r *Record) Raw() string {
 	out, _ := r.Marshal()
