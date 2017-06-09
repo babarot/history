@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/GeertJohan/go.ask"
 	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
 	"github.com/spf13/cobra"
@@ -26,6 +28,11 @@ func sync(cmd *cobra.Command, args []string) error {
 	if syncInterval > 0 {
 		if skipSyncFor(syncInterval) {
 			return fmt.Errorf("interval %v has not passed yet", syncInterval)
+		}
+	}
+	if syncAsk {
+		if !ask.MustAskf("%s: sync immediately?", config.Conf.History.Path) {
+			return errors.New("canceled")
 		}
 	}
 	return h.Sync()
@@ -55,9 +62,11 @@ func skipSyncFor(interval time.Duration) bool {
 
 var (
 	syncInterval time.Duration
+	syncAsk      bool
 )
 
 func init() {
 	RootCmd.AddCommand(syncCmd)
-	syncCmd.Flags().DurationVarP(&syncInterval, "interval", "i", 0, "Sync with the interval")
+	syncCmd.Flags().DurationVarP(&syncInterval, "interval", "", 0, "Sync with the interval")
+	syncCmd.Flags().BoolVarP(&syncAsk, "ask", "", false, "Sync after the confirmation")
 }

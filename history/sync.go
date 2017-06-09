@@ -188,13 +188,8 @@ func (h *History) sync() (err error) {
 func (h *History) Sync() (err error) {
 	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
 	s.Prefix = "\r"
-	// s.Writer = os.Stderr TODO
+	s.Writer = os.Stdout
 	s.Start()
-	defer func() {
-		if err == nil {
-			fmt.Fprintln(os.Stderr, "Synced!")
-		}
-	}()
 	defer s.Stop()
 
 	h.client, err = getClient()

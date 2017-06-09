@@ -14,8 +14,16 @@ __history::history::add()
 
 __history::history::sync()
 {
-    command history sync --interval=1h 2>/dev/null
-    if (( $status == 0 )); then
-        printf "$fg[green]$(date)$reset_color: Synced $(command history config --get history.path)\n"
+    local status_code
+    local before after
+    before=$SECONDS
+    command history sync \
+        --ask \
+        --interval=${ZSH_HISTORY_AUTO_SYNC_INTERVAL:-"1h"} \
+        2>/dev/null
+    status_code=$status
+    after=$SECONDS
+    if (( $status_code == 0 && (after - before) > 1 )); then
+        printf "[$(date)] Synced successfully\n"
     fi
 }

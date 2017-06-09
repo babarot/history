@@ -29,7 +29,7 @@ if [[ -n $ZSH_HISTORY_KEYBIND_ARROW_DOWN ]]; then
 fi
 
 if [[ -z $ZSH_HISTORY_COLUMNS_GET_ALL ]]; then
-    export ZSH_HISTORY_COLUMNS_GET_ALL="{{.Time}},{{.Status}},{{.Command}},({{.Base}})"
+    export ZSH_HISTORY_COLUMNS_GET_ALL="{{.Time}},{{.Status}},{{.Command}},({{.Base}}:{{.Branch}})"
 fi
 
 #
@@ -45,6 +45,14 @@ if [[ $ZSH_HISTORY_DISABLE_COLOR == true ]]; then
     unset ZSH_HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND
 fi
 
+if [[ -z $ZSH_HISTORY_AUTO_SYNC ]]; then
+    export ZSH_HISTORY_AUTO_SYNC=true
+fi
+
+if [[ -z $ZSH_HISTORY_AUTO_SYNC_INTERVAL ]]; then
+    export ZSH_HISTORY_AUTO_SYNC_INTERVAL="1h"
+fi
+
 #
 # Loading
 #
@@ -55,12 +63,11 @@ do
 done
 unset f
 
-autoload -Uz colors; colors
 autoload -Uz add-zsh-hook
 
 add-zsh-hook precmd  "__history::history::add"
 add-zsh-hook preexec "__history::substring::reset"
 
-if [[ ${ZSH_HISTORY_AUTO_SYNC:-true} == true ]]; then
+if [[ $ZSH_HISTORY_AUTO_SYNC == true ]]; then
     add-zsh-hook precmd  "__history::history::sync"
 fi

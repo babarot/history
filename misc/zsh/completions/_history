@@ -48,7 +48,8 @@ _history () {
         (sync)
             _arguments \
                 '(- :)--help[Show this help and exit]' \
-                '(--interval -i)'{--interval,-i}'=[Sync with the interval]' \
+                '(--interval)--interval=[Sync with the interval]' \
+                '(--ask)--ask[Sync after the confirmation]' \
                 && return 0
             ;;
         (edit)
