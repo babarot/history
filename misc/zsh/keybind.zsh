@@ -3,7 +3,10 @@
 __history::keybind::get_by_dir()
 {
     local buf
-    buf="$(command history search --dir --branch --query "$LBUFFER")"
+    buf="$(command history search \
+        --filter-dir \
+        --filter-branch \
+        --query "$LBUFFER")"
     if [[ -n $buf ]]; then
         BUFFER="$buf"
         CURSOR=$#BUFFER

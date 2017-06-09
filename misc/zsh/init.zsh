@@ -55,7 +55,9 @@ do
 done
 unset f
 
+autoload -Uz colors; colors
 autoload -Uz add-zsh-hook
+
 add-zsh-hook precmd  "__history::history::add"
 add-zsh-hook preexec "__history::substring::reset"
 

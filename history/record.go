@@ -52,7 +52,7 @@ func (r *Record) Raw() string {
 
 func (r *Record) Render() (line string) {
 	var tmpl *tt.Template
-	columns := config.Conf.History.Record.Columns
+	columns := config.Conf.Screen.Columns
 	if len(columns) == 0 {
 		// default
 		columns = []string{"{{.Command}}"}
@@ -79,13 +79,13 @@ func (r *Record) Render() (line string) {
 			"Status": func(status int) string {
 				switch status {
 				case 0:
-					ok := config.Conf.History.Record.StatusOK
+					ok := config.Conf.Screen.StatusOK
 					if ok == "" {
 						ok = "o"
 					}
 					return color.GreenString(ok)
 				default:
-					ng := config.Conf.History.Record.StatusNG
+					ng := config.Conf.Screen.StatusNG
 					if ng == "" {
 						ng = "x"
 					}

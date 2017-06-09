@@ -38,14 +38,20 @@ _history () {
         (search|list|delete)
             _arguments \
                 '(- :)--help[Show this help and exit]' \
-                '(--branch -b)'{--branch,-b}'=['${(C)words[1]}' with branch]' \
-                '(--dir -d)'{--dir,-d}'=['${(C)words[1]}' with dir]' \
-                '(--hostname -p)'{--hostname,-p}'=['${(C)words[1]}' with hostname]' \
+                '(--filter-branch -b)'{--filter-branch,-b}'['${(C)words[1]}' with branch]' \
+                '(--filter-dir -d)'{--filter-dir,-d}'['${(C)words[1]}' with dir]' \
+                '(--filter-hostname -p)'{--filter-hostname,-p}'['${(C)words[1]}' with hostname]' \
                 '(--query -q)'{--query,-q}'=['${(C)words[1]}' with query]' \
                 '(--columns -c)'{--columns,-c}'=['${(C)words[1]}' columns with options]' \
                 && return 0
             ;;
-        (edit|sync)
+        (sync)
+            _arguments \
+                '(- :)--help[Show this help and exit]' \
+                '(--interval -i)'{--interval,-i}'=[Sync with the interval]' \
+                && return 0
+            ;;
+        (edit)
             _arguments \
                 '(- :)--help[Show this help and exit]' \
                 && return 0

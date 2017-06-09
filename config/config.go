@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -14,6 +13,9 @@ type Config struct {
 	Core    CoreConfig    `toml:"core"`
 	History HistoryConfig `toml:"history"`
 	Screen  ScreenConfig  `toml:"screen"`
+
+	// Var cooperates with other packages
+	Var VarConfig `toml:"-"`
 }
 
 type CoreConfig struct {
@@ -23,11 +25,10 @@ type CoreConfig struct {
 }
 
 type HistoryConfig struct {
-	Path     string       `toml:"path"`
-	Ignores  []string     `toml:"ignore_words"`
-	Sync     SyncConfig   `toml:"sync"`
-	Record   RecordConfig `toml:"record"`
-	UseColor bool         `toml:"use_color"`
+	Path     string     `toml:"path"`
+	Ignores  []string   `toml:"ignore_words"`
+	Sync     SyncConfig `toml:"sync"`
+	UseColor bool       `toml:"use_color"`
 }
 
 type SyncConfig struct {
@@ -35,22 +36,21 @@ type SyncConfig struct {
 	Token string `toml:"token"`
 }
 
-type RecordConfig struct {
-	Columns  []string `toml:"columns"`
-	StatusOK string   `toml:"status_ok"`
-	StatusNG string   `toml:"status_ng"`
+type ScreenConfig struct {
+	FilterDir      bool     `toml:"filter_dir"`
+	FilterBranch   bool     `toml:"filter_branch"`
+	FilterHostname bool     `toml:"filter_hostname"`
+	Columns        []string `toml:"columns"`
+	StatusOK       string   `toml:"status_ok"`
+	StatusNG       string   `toml:"status_ng"`
 }
 
-type ScreenConfig struct {
-	FilterDir      bool `toml:"filter_dir"`
-	FilterBranch   bool `toml:"filter_branch"`
-	FilterHostname bool `toml:"filter_hostname"`
-
-	Dir      string `toml:"-"`
-	Branch   string `toml:"-"`
-	Hostname string `toml:"-"`
-	Query    string `toml:"-"`
-	Columns  string `toml:"-"`
+type VarConfig struct {
+	Dir      string
+	Branch   string
+	Hostname string
+	Query    string
+	Columns  string
 }
 
 var Conf Config
@@ -116,34 +116,15 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.History.Path = filepath.Join(dir, "history.ltsv")
 	cfg.History.Ignores = []string{}
 	cfg.History.UseColor = false
-	cfg.History.Record.Columns = []string{"{{.Time}}", "{{.Status}}", "{{.Command}}"}
-	cfg.History.Record.StatusOK = " "
-	cfg.History.Record.StatusNG = "x"
 	cfg.History.Sync.ID = ""
 	cfg.History.Sync.Token = os.Getenv("GITHUB_TOKEN")
 
 	cfg.Screen.FilterDir = false
 	cfg.Screen.FilterBranch = false
 	cfg.Screen.FilterHostname = false
+	cfg.Screen.Columns = []string{"{{.Time}}", "{{.Status}}", "{{.Command}}"}
+	cfg.Screen.StatusOK = " "
+	cfg.Screen.StatusNG = "x"
 
 	return toml.NewEncoder(f).Encode(cfg)
-}
-
-func CheckIgnores(command string) bool {
-	command = strings.Split(command, " ")[0]
-	for _, ignore := range Conf.History.Ignores {
-		if ignore == command {
-			return true
-		}
-	}
-	return false
-}
-
-func IndexCommandColumns() int {
-	for i, v := range Conf.History.Record.Columns {
-		if v == "{{.Command}}" {
-			return i
-		}
-	}
-	return -1
 }

@@ -16,6 +16,7 @@ type Screen struct {
 
 func NewScreen() (s *Screen, err error) {
 	c := config.Conf.Screen
+	v := config.Conf.Var
 	var (
 		lines   []string
 		records history.Records
@@ -30,20 +31,20 @@ func NewScreen() (s *Screen, err error) {
 	h.Records.Reverse()
 	h.Records.Unique()
 
-	if c.Query != "" {
-		h.Records.Contains(c.Query)
+	if v.Query != "" {
+		h.Records.Contains(v.Query)
 	}
 
 	columns := []string{}
-	if c.Columns != "" {
-		columns = strings.Split(c.Columns, ",")
+	if v.Columns != "" {
+		columns = strings.Split(v.Columns, ",")
 		if len(columns) > 0 {
-			config.Conf.History.Record.Columns = columns
+			config.Conf.Screen.Columns = columns
 		}
 	}
 
 	if idx := config.IndexCommandColumns(); idx == -1 {
-		if len(config.Conf.History.Record.Columns) > 0 {
+		if len(config.Conf.Screen.Columns) > 0 {
 			// Other elements are specified although {{.Command}} is not specified in column
 			err = errors.New("Error: {{.Command}} tepmplete should be contained in columns")
 			return
@@ -51,13 +52,13 @@ func NewScreen() (s *Screen, err error) {
 	}
 
 	for _, record := range h.Records {
-		if c.FilterDir && c.Dir != record.Dir {
+		if c.FilterDir && v.Dir != record.Dir {
 			continue
 		}
-		if c.FilterBranch && c.Branch != record.Branch {
+		if c.FilterBranch && v.Branch != record.Branch {
 			continue
 		}
-		if c.FilterHostname && c.Hostname != record.Hostname {
+		if c.FilterHostname && v.Hostname != record.Hostname {
 			continue
 		}
 		lines = append(lines, record.Render())

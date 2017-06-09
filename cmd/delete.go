@@ -16,13 +16,13 @@ var deleteCmd = &cobra.Command{
 
 func delete(cmd *cobra.Command, args []string) error {
 	if config.Conf.Screen.FilterDir {
-		config.Conf.Screen.Dir = cli.GetDirName()
+		config.Conf.Var.Dir = cli.GetDirName()
 	}
 	if config.Conf.Screen.FilterBranch {
-		config.Conf.Screen.Branch = cli.GetBranchName()
+		config.Conf.Var.Branch = cli.GetBranchName()
 	}
 	if config.Conf.Screen.FilterHostname {
-		config.Conf.Screen.Hostname = cli.GetHostName()
+		config.Conf.Var.Hostname = cli.GetHostName()
 	}
 
 	screen, err := cli.NewScreen()
@@ -39,6 +39,7 @@ func delete(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
 	for _, line := range lines {
 		h.Records.Delete(history.Record{
 			Command: line.Command,
@@ -46,6 +47,7 @@ func delete(cmd *cobra.Command, args []string) error {
 			Branch:  line.Branch,
 		})
 	}
+
 	return h.Save()
 }
 
@@ -55,9 +57,9 @@ var (
 
 func init() {
 	RootCmd.AddCommand(deleteCmd)
-	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterDir, "dir", "d", config.Conf.Screen.FilterDir, "Delete with dir")
-	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterBranch, "branch", "b", config.Conf.Screen.FilterBranch, "Delete with branch")
-	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterHostname, "hostname", "p", config.Conf.Screen.FilterHostname, "Delete with hostname")
-	deleteCmd.Flags().StringVarP(&config.Conf.Screen.Query, "query", "q", config.Conf.Screen.Query, "Delete with query")
-	deleteCmd.Flags().StringVarP(&config.Conf.Screen.Columns, "columns", "c", config.Conf.Screen.Columns, "Specify columns with options")
+	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterDir, "filter-dir", "d", config.Conf.Screen.FilterDir, "Delete with dir")
+	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterBranch, "filter-branch", "b", config.Conf.Screen.FilterBranch, "Delete with branch")
+	deleteCmd.Flags().BoolVarP(&config.Conf.Screen.FilterHostname, "filter-hostname", "p", config.Conf.Screen.FilterHostname, "Delete with hostname")
+	deleteCmd.Flags().StringVarP(&config.Conf.Var.Query, "query", "q", config.Conf.Var.Query, "Delete with query")
+	deleteCmd.Flags().StringVarP(&config.Conf.Var.Columns, "columns", "c", config.Conf.Var.Columns, "Specify columns with options")
 }

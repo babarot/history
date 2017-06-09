@@ -16,6 +16,6 @@ __history::history::sync()
 {
     command history sync --interval=1h 2>/dev/null
     if (( $status == 0 )); then
-        echo "$(date): synced successfully ~ $(command history config --get history.path)"
+        printf "$fg[green]$(date)$reset_color: Synced $(command history config --get history.path)\n"
     fi
 }
