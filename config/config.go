@@ -117,7 +117,10 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.History.Ignores = []string{}
 	cfg.History.UseColor = false
 	cfg.History.Sync.ID = ""
-	cfg.History.Sync.Token = os.Getenv("GITHUB_TOKEN")
+	cfg.History.Sync.Token = "$GITHUB_TOKEN"
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		cfg.History.Sync.Token = token
+	}
 
 	cfg.Screen.FilterDir = false
 	cfg.Screen.FilterBranch = false

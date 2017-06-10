@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -17,14 +18,26 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func expandPath(s string) string {
+	if len(s) >= 2 && s[0] == '~' && os.IsPathSeparator(s[1]) {
+		if runtime.GOOS == "windows" {
+			s = filepath.Join(os.Getenv("USERPROFILE"), s[2:])
+		} else {
+			s = filepath.Join(os.Getenv("HOME"), s[2:])
+		}
+	}
+	return os.Expand(s, os.Getenv)
+}
+
 func getClient() (gc *github.Client, err error) {
 	cfg := config.Conf.History.Sync
 	if cfg.Token == "" {
-		err = errors.New("token is missing")
+		err = errors.New("config history.sync.token is missing")
 		return
 	}
+
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: cfg.Token},
+		&oauth2.Token{AccessToken: expandPath(cfg.Token)},
 	)
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 	return github.NewClient(tc), nil
@@ -195,10 +208,6 @@ func (h *History) Sync() (err error) {
 	h.client, err = getClient()
 	if err != nil {
 		return
-	}
-
-	if config.Conf.History.Sync.Token == "" {
-		return errors.New("config history.sync.token is missing")
 	}
 
 	if config.Conf.History.Sync.ID == "" {
