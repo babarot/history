@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/b4b4r07/history/config"
@@ -97,4 +98,23 @@ func (h *History) Backup() (err error) {
 
 	_, err = io.Copy(dst, src)
 	return err
+}
+
+func CheckIgnores(command string) bool {
+	for _, ignore := range config.Conf.History.Ignores {
+		re := regexp.MustCompile(ignore)
+		if re.MatchString(command) {
+			return true
+		}
+	}
+	return false
+}
+
+func IndexCommandColumns() int {
+	for i, v := range config.Conf.Screen.Columns {
+		if v == "{{.Command}}" {
+			return i
+		}
+	}
+	return -1
 }

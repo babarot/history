@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
 	"github.com/spf13/cobra"
 )
@@ -31,7 +30,7 @@ func add(cmd *cobra.Command, args []string) error {
 	}
 
 	// Skip adding if the command is registed as ignoring word
-	if config.CheckIgnores(addCommand) {
+	if history.CheckIgnores(addCommand) {
 		return nil
 	}
 

@@ -43,7 +43,7 @@ func NewScreen() (s *Screen, err error) {
 		}
 	}
 
-	if idx := config.IndexCommandColumns(); idx == -1 {
+	if idx := history.IndexCommandColumns(); idx == -1 {
 		if len(config.Conf.Screen.Columns) > 0 {
 			// Other elements are specified although {{.Command}} is not specified in column
 			err = errors.New("Error: {{.Command}} tepmplete should be contained in columns")
@@ -68,6 +68,7 @@ func NewScreen() (s *Screen, err error) {
 	return &Screen{
 		Lines:   lines,
 		Records: records,
+		// History: h,
 	}, nil
 }
 
@@ -80,7 +81,7 @@ type Lines []Line
 func (s *Screen) parseLine(line string) (*Line, error) {
 	l := strings.Split(line, "\t")
 	var record history.Record
-	idx := config.IndexCommandColumns()
+	idx := history.IndexCommandColumns()
 	if idx == -1 {
 		// default
 		idx = 0
