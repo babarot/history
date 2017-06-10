@@ -15,8 +15,6 @@ type Screen struct {
 }
 
 func NewScreen() (s *Screen, err error) {
-	c := config.Conf.Screen
-	v := config.Conf.Var
 	var (
 		lines   []string
 		records history.Records
@@ -31,13 +29,16 @@ func NewScreen() (s *Screen, err error) {
 	h.Records.Reverse()
 	h.Records.Unique()
 
-	if v.Query != "" {
-		h.Records.Contains(v.Query)
+	cc := config.Conf.Screen
+	cv := config.Conf.Var
+
+	if cv.Query != "" {
+		h.Records.Contains(cv.Query)
 	}
 
 	columns := []string{}
-	if v.Columns != "" {
-		columns = strings.Split(v.Columns, ",")
+	if cv.Columns != "" {
+		columns = strings.Split(cv.Columns, ",")
 		if len(columns) > 0 {
 			config.Conf.Screen.Columns = columns
 		}
@@ -52,13 +53,13 @@ func NewScreen() (s *Screen, err error) {
 	}
 
 	for _, record := range h.Records {
-		if c.FilterDir && v.Dir != record.Dir {
+		if cc.FilterDir && cv.Dir != record.Dir {
 			continue
 		}
-		if c.FilterBranch && v.Branch != record.Branch {
+		if cc.FilterBranch && cv.Branch != record.Branch {
 			continue
 		}
-		if c.FilterHostname && v.Hostname != record.Hostname {
+		if cc.FilterHostname && cv.Hostname != record.Hostname {
 			continue
 		}
 		lines = append(lines, record.Render())
@@ -68,7 +69,6 @@ func NewScreen() (s *Screen, err error) {
 	return &Screen{
 		Lines:   lines,
 		Records: records,
-		// History: h,
 	}, nil
 }
 
