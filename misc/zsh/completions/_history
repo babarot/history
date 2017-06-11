@@ -49,6 +49,7 @@ _history () {
             _arguments \
                 '(- :)--help[Show this help and exit]' \
                 '(--interval)--interval=[Sync with the interval]' \
+                '(--diff)--diff=[Sync if the diff exceeds a certain number]' \
                 '(--ask)--ask[Sync after the confirmation]' \
                 && return 0
             ;;

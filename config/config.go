@@ -34,6 +34,7 @@ type HistoryConfig struct {
 type SyncConfig struct {
 	ID    string `toml:"id"`
 	Token string `toml:"token"`
+	Size  int    `toml:"size"`
 }
 
 type ScreenConfig struct {
@@ -121,6 +122,7 @@ func (cfg *Config) LoadFile(file string) error {
 	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
 		cfg.History.Sync.Token = token
 	}
+	cfg.History.Sync.Size = 100
 
 	cfg.Screen.FilterDir = false
 	cfg.Screen.FilterBranch = false

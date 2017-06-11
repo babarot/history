@@ -10,6 +10,7 @@ import (
 	"github.com/GeertJohan/go.ask"
 	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
+	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
 )
 
@@ -21,6 +22,12 @@ var syncCmd = &cobra.Command{
 }
 
 func sync(cmd *cobra.Command, args []string) error {
+	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
+	s.Prefix = "\r"
+	s.Writer = os.Stdout
+	s.Start()
+	defer s.Stop()
+
 	h, err := history.Load()
 	if err != nil {
 		return err
@@ -30,12 +37,24 @@ func sync(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("interval %v has not passed yet", syncInterval)
 		}
 	}
+	diff, err := h.GetDiff()
+	if err != nil {
+		return err
+	}
+	if config.Conf.History.Sync.Size != 0 {
+		if diff.Size < config.Conf.History.Sync.Size {
+			return fmt.Errorf("The history difference %d is less than the specified size %d",
+				diff.Size, config.Conf.History.Sync.Size)
+		}
+	}
 	if syncAsk {
+		s.Stop()
 		if !ask.MustAskf("%s: sync immediately?", config.Conf.History.Path) {
 			return errors.New("canceled")
 		}
 	}
-	return h.Sync()
+	s.Start()
+	return h.Sync(diff)
 }
 
 func skipSyncFor(interval time.Duration) bool {
@@ -69,4 +88,5 @@ func init() {
 	RootCmd.AddCommand(syncCmd)
 	syncCmd.Flags().DurationVarP(&syncInterval, "interval", "", 0, "Sync with the interval")
 	syncCmd.Flags().BoolVarP(&syncAsk, "ask", "", false, "Sync after the confirmation")
+	syncCmd.Flags().IntVarP(&config.Conf.History.Sync.Size, "diff", "", config.Conf.History.Sync.Size, "Sync if the diff exceeds a certain number")
 }

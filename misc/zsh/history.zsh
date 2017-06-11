@@ -19,6 +19,7 @@ __history::history::sync()
     before=$SECONDS
     command history sync \
         --ask \
+        --diff=100 \
         --interval=${ZSH_HISTORY_AUTO_SYNC_INTERVAL:-"1h"} \
         2>/dev/null
     status_code=$status

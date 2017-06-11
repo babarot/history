@@ -6,17 +6,29 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/b4b4r07/history/config"
-	"github.com/briandowns/spinner"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
+
+func getClient() (gc *github.Client, err error) {
+	cfg := config.Conf.History.Sync
+	if cfg.Token == "" {
+		err = errors.New("config history.sync.token is missing")
+		return
+	}
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: expandPath(cfg.Token)},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	return github.NewClient(tc), nil
+}
 
 func expandPath(s string) string {
 	if len(s) >= 2 && s[0] == '~' && os.IsPathSeparator(s[1]) {
@@ -27,20 +39,6 @@ func expandPath(s string) string {
 		}
 	}
 	return os.Expand(s, os.Getenv)
-}
-
-func getClient() (gc *github.Client, err error) {
-	cfg := config.Conf.History.Sync
-	if cfg.Token == "" {
-		err = errors.New("config history.sync.token is missing")
-		return
-	}
-
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: expandPath(cfg.Token)},
-	)
-	tc := oauth2.NewClient(oauth2.NoContext, ts)
-	return github.NewClient(tc), nil
 }
 
 func (h *History) Merge(a, b string) {
@@ -165,12 +163,41 @@ func (h *History) create() (id string, err error) {
 	return
 }
 
-func (h *History) sync() (err error) {
-	gist, _, err := h.client.Gists.Get(context.Background(), config.Conf.History.Sync.ID)
+type Diff struct {
+	Local struct {
+		Size    int
+		Content string
+	}
+	Remote struct {
+		Size    int
+		Content string
+	}
+	Size int
+}
+
+func (h *History) GetDiff() (d Diff, err error) {
+	h.client, err = getClient()
 	if err != nil {
 		return
 	}
 
+	if config.Conf.History.Sync.ID == "" {
+		id, err := h.getGistID()
+		if err != nil {
+			return d, err
+		}
+		if id != "" {
+			config.Conf.History.Sync.ID = id
+		}
+		if err := config.Conf.Save(); err != nil {
+			return d, err
+		}
+	}
+
+	gist, _, err := h.client.Gists.Get(context.Background(), config.Conf.History.Sync.ID)
+	if err != nil {
+		return
+	}
 	var (
 		remoteContent, localContent string
 	)
@@ -187,7 +214,33 @@ func (h *History) sync() (err error) {
 		remoteContent = *file.Content
 	}
 
-	h.Merge(remoteContent, localContent)
+	return Diff{
+		Local: struct {
+			Size    int
+			Content string
+		}{
+			Size:    strings.Count(localContent, "\n"),
+			Content: localContent,
+		},
+		Remote: struct {
+			Size    int
+			Content string
+		}{
+			Size:    strings.Count(remoteContent, "\n"),
+			Content: remoteContent,
+		},
+		Size: int(math.Abs(float64(
+			strings.Count(localContent, "\n") - strings.Count(remoteContent, "\n"),
+		))),
+	}, nil
+}
+
+func (h *History) Sync(diff Diff) (err error) {
+	if err := h.Backup(); err != nil {
+		return err
+	}
+
+	h.Merge(diff.Remote.Content, diff.Local.Content)
 	if err := h.updateLocal(); err != nil {
 		return err
 	}
@@ -196,36 +249,4 @@ func (h *History) sync() (err error) {
 	}
 
 	return
-}
-
-func (h *History) Sync() (err error) {
-	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
-	s.Prefix = "\r"
-	s.Writer = os.Stdout
-	s.Start()
-	defer s.Stop()
-
-	h.client, err = getClient()
-	if err != nil {
-		return
-	}
-
-	if config.Conf.History.Sync.ID == "" {
-		id, err := h.getGistID()
-		if err != nil {
-			return err
-		}
-		if id != "" {
-			config.Conf.History.Sync.ID = id
-		}
-		if err := config.Conf.Save(); err != nil {
-			return err
-		}
-	}
-
-	if err := h.Backup(); err != nil {
-		return err
-	}
-
-	return h.sync()
 }
