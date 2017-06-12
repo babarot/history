@@ -1,5 +1,17 @@
 #!/bin/zsh
 
+__history::keybind::get()
+{
+    local buf opt
+    # by default, equals to __history::keybind::get_by_dir behavior
+    buf="$(command history search $ZSH_HISTORY_FILTER_OPTIONS --query "$LBUFFER")"
+    if [[ -n $buf ]]; then
+        BUFFER="$buf"
+        CURSOR=$#BUFFER
+    fi
+    zle reset-prompt
+}
+
 __history::keybind::get_by_dir()
 {
     local buf

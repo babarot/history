@@ -8,6 +8,11 @@ ZSH_HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS="i"
 # Keybindings
 #
 
+if [[ -n $ZSH_HISTORY_KEYBIND_GET ]]; then
+    zle -N "__history::keybind::get"
+    bindkey "$ZSH_HISTORY_KEYBIND_GET" "__history::keybind::get"
+fi
+
 if [[ -n $ZSH_HISTORY_KEYBIND_GET_BY_DIR ]]; then
     zle -N "__history::keybind::get_by_dir"
     bindkey "$ZSH_HISTORY_KEYBIND_GET_BY_DIR" "__history::keybind::get_by_dir"
@@ -26,10 +31,6 @@ fi
 if [[ -n $ZSH_HISTORY_KEYBIND_ARROW_DOWN ]]; then
     zle -N "__history::keybind::arrow_down"
     bindkey "$ZSH_HISTORY_KEYBIND_ARROW_DOWN" "__history::keybind::arrow_down"
-fi
-
-if [[ -z $ZSH_HISTORY_COLUMNS_GET_ALL ]]; then
-    export ZSH_HISTORY_COLUMNS_GET_ALL="{{.Time}},{{.Status}},{{.Command}},({{.Base}}:{{.Branch}})"
 fi
 
 #
@@ -51,6 +52,17 @@ fi
 
 if [[ -z $ZSH_HISTORY_AUTO_SYNC_INTERVAL ]]; then
     export ZSH_HISTORY_AUTO_SYNC_INTERVAL="1h"
+fi
+
+if [[ -z $ZSH_HISTORY_COLUMNS_GET_ALL ]]; then
+    export ZSH_HISTORY_COLUMNS_GET_ALL="{{.Time}},{{.Status}},{{.Command}},({{.Base}}:{{.Branch}})"
+fi
+
+# TODO: ZSH_HISTORY_COLUMNS_GET_ALL
+
+if [[ -z $ZSH_HISTORY_FILTER_OPTIONS ]]; then
+    # by default, equals to __history::keybind::get_by_dir behavior
+    export ZSH_HISTORY_FILTER_OPTIONS="--filter-dir --filter-branch"
 fi
 
 #
