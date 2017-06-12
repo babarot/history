@@ -9,8 +9,10 @@ build: deps
 	go build -o bin/$(BIN)
 
 install: build
-	install -m 755 ./bin/$(BIN) ~/bin/$(BIN)
-	install -m 644 ./misc/zsh/completions/_history ~/.zsh/Completion
+	go install
+	if echo $$SHELL | grep "zsh" &>/dev/null; then \
+		install -m 644 ./misc/zsh/completions/_history $(shell zsh -c 'echo $$fpath[1]'); \
+		fi
 
 deps:
 	go get -d -v ./...
