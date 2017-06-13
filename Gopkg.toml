@@ -76,6 +76,10 @@
 
 [[constraint]]
   branch = "master"
+  name = "github.com/b4b4r07/go-ask"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/b4b4r07/go-colon"
 
 [[constraint]]
@@ -97,10 +101,6 @@
 [[constraint]]
   branch = "master"
   name = "github.com/google/go-github"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/inconshreveable/mousetrap"
 
 [[constraint]]
   branch = "master"

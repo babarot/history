@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/GeertJohan/go.ask"
+	"github.com/b4b4r07/go-ask"
 	"github.com/b4b4r07/history/config"
 	"github.com/b4b4r07/history/history"
 	"github.com/briandowns/spinner"
@@ -49,7 +49,7 @@ func sync(cmd *cobra.Command, args []string) error {
 	}
 	if syncAsk {
 		s.Stop()
-		if !ask.MustAskf("%s: sync immediately?", config.Conf.History.Path) {
+		if !ask.NewQ().Confirmf("%s: sync immediately?", config.Conf.History.Path) {
 			return errors.New("canceled")
 		}
 	}
