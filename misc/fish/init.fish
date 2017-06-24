@@ -120,3 +120,50 @@ if test "$fish_history_auto_sync" = true
     end
 
 end
+
+#
+# Substring search
+#
+
+function __history_substring_search_begin
+
+    set -l buffer (commandline)
+    if test -z "$buffer" -o "$buffer" != "$__history_substring_search_result"
+        set -g __history_substring_search_query $buffer
+        set -g __history_substring_search_matches (command history list \
+            --filter-branch \
+            --filter-dir \
+            --columns '{{.Command}}' \
+            --query (string escape -n $buffer))
+
+        set -g __history_substring_search_matches_count (count $__history_substring_search_matches)
+        set -g __history_substring_search_match_index (math $__history_substring_search_matches_count + 1)
+    end
+end
+
+function __history_substring_search_end
+    set -g __history_substring_search_result (commandline)
+
+    function __history_substring_reset --on-event fish_preexec
+        set -g __history_substring_search_result
+    end
+end
+
+function __history_substring_history_up
+    if test "$__history_substring_search_match_index" -gt 0
+        set -g __history_substring_search_match_index (math $__history_substring_search_match_index - 1)
+        commandline $__history_substring_search_matches[$__history_substring_search_match_index]
+    else
+        __history_substring_not_found
+    end
+end
+
+function __history_substring_history_down
+    if test "$__history_substring_search_match_index" -lt (count $__history_substring_search_matches)
+        set -g __history_substring_search_match_index (math $__history_substring_search_match_index + 1)
+        commandline $__history_substring_search_matches[$__history_substring_search_match_index]
+    else
+        set -g __history_substring_search_old_buffer (commandline)
+        commandline $__history_substring_search_query
+    end
+end
