@@ -84,3 +84,39 @@ and set -l keys (command history config --keys)
 complete -xc $fish_history_cmd_name -n '__fish_seen_subcommand_from config' -s h -l help -d 'Show the help message'
 complete -xc $fish_history_cmd_name -n '__fish_seen_subcommand_from config' -l get -a "$keys" -d 'Get the config value'
 complete -xc $fish_history_cmd_name -n '__fish_seen_subcommand_from config' -l keys -d 'Get the config keys'
+
+#
+# Hooks
+#
+
+function __history_add --on-event fish_postexec
+    if test -n $argv
+
+        set -l status_code $status
+        set -l last_command $argv
+        set -l git_branch (git rev-parse --abbrev-ref HEAD ^/dev/null)
+
+        command history add --command "$last_command" --dir "$PWD" --status "$status_code" --branch "$git_branch"
+
+    end
+end
+
+if test "$fish_history_auto_sync" = true
+
+    function __history_sync --on-event fish_postexec
+        set -l before (date +%s)
+        set -l sync_interval (set -q fish_history_auto_sync_interval
+                and echo $fish_history_auto_sync_interval
+                or echo -1)
+
+        command history sync --ask --diff=100 --interval="$sync_interval" ^/dev/null
+
+        set -l status_code $status
+        set -l after (date +%s)
+
+        if test $status_code = 0 -a (math $after - $before) -gt 1
+            echo "["(date)"] Synced successfully"
+        end
+    end
+
+end
