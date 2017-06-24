@@ -167,3 +167,54 @@ function __history_substring_history_down
         commandline $__history_substring_search_query
     end
 end
+
+#
+# Keybindings
+#
+
+function __history_keybind_get
+    set -l buf (command history search $fish_history_filter_options \
+        --query (commandline -c))
+
+    test -n "$buf"
+    and commandline $buf
+
+    commandline -f repaint
+end
+
+function __history_keybind_get_by_dir
+    set -l buf (command history search \
+        --filter-dir \
+        --filter-branch \
+        --query (commandline -c))
+
+    test -n "$buf"
+    and commandline $buf
+
+    commandline -f repaint
+end
+
+function __history_keybind_get_all
+    set -l opt
+    test -n "$fish_history_columns_get_all"
+    and set opt "--columns $fish_history_columns_get_all"
+
+    set -l buf (command history search $opt --query (commandline -c))
+
+    test -n "$buf"
+    and commandline $buf
+
+    commandline -f repaint
+end
+
+function __history_keybind_arrow_up
+    __history_substring_search_begin
+    __history_substring_history_up
+    __history_substring_search_end
+end
+
+function __history_keybind_arrow_down
+    __history_substring_search_begin
+    __history_substring_history_down
+    __history_substring_search_end
+end
