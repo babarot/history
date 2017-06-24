@@ -7,7 +7,7 @@ if test -z "$fish_history_cmd_name"
 end
 
 if test -z "$fish_history_auto_sync"
-    set -g fish_history_auto_sync true
+    set -g fish_history_auto_sync false
 end
 
 if test -z "$fish_history_auto_sync_interval"
@@ -109,7 +109,7 @@ if test "$fish_history_auto_sync" = true
                 and echo $fish_history_auto_sync_interval
                 or echo -1)
 
-        command history sync --ask --diff=100 --interval="$sync_interval" ^/dev/null
+        command history sync --diff=100 --interval="$sync_interval" ^/dev/null
 
         set -l status_code $status
         set -l after (date +%s)
