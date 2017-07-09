@@ -134,7 +134,7 @@ function __history_substring_search_begin
             --filter-branch \
             --filter-dir \
             --columns '{{.Command}}' \
-            --query (string escape -n $buffer))
+            --query "$buffer")
 
         set -g __history_substring_search_matches_count (count $__history_substring_search_matches)
         set -g __history_substring_search_match_index (math $__history_substring_search_matches_count + 1)
@@ -150,11 +150,12 @@ function __history_substring_search_end
 end
 
 function __history_substring_history_up
-    if test "$__history_substring_search_match_index" -gt 0
+    if test "$__history_substring_search_match_index" -gt 1
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index - 1)
         commandline $__history_substring_search_matches[$__history_substring_search_match_index]
     else
-        __history_substring_not_found
+        set -g __history_substring_search_old_buffer (commandline)
+        commandline $__history_substring_search_query
     end
 end
 
@@ -173,8 +174,8 @@ end
 #
 
 function __history_keybind_get
-    set -l buf (command history search $fish_history_filter_options \
-        --query (commandline -c))
+    set -l buf (eval command history search $fish_history_filter_options \
+        --query (commandline -c | string escape))
 
     test -n "$buf"
     and commandline $buf
@@ -183,10 +184,8 @@ function __history_keybind_get
 end
 
 function __history_keybind_get_by_dir
-    set -l buf (command history search \
-        --filter-dir \
-        --filter-branch \
-        --query (commandline -c))
+    set -l buf (eval command history search --filter-dir --filter-branch \
+        --query (commandline -c | string escape))
 
     test -n "$buf"
     and commandline $buf
@@ -195,11 +194,8 @@ function __history_keybind_get_by_dir
 end
 
 function __history_keybind_get_all
-    set -l opt
-    test -n "$fish_history_columns_get_all"
-    and set opt "--columns $fish_history_columns_get_all"
-
-    set -l buf (command history search $opt --query (commandline -c))
+    set -l buf (eval command history search $fish_history_columns_get_all \
+        --query (commandline -c | string escape))
 
     test -n "$buf"
     and commandline $buf
