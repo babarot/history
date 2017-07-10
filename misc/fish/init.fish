@@ -142,11 +142,17 @@ function __history_substring_search_begin
 end
 
 function __history_substring_search_end
-    set -g __history_substring_search_result (commandline)
+    if test $__history_substring_search_match_index -le $__history_substring_search_matches_count
+        set -g __history_substring_search_result (commandline)
+    else
+        set -g __history_substring_search_result
+    end
 
     function __history_substring_reset --on-event fish_preexec
         set -g __history_substring_search_result
     end
+
+    commandline -f repaint
 end
 
 function __history_substring_history_up
@@ -154,7 +160,6 @@ function __history_substring_history_up
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index - 1)
         commandline $__history_substring_search_matches[$__history_substring_search_match_index]
     else
-        set -g __history_substring_search_old_buffer (commandline)
         commandline $__history_substring_search_query
     end
 end
@@ -164,7 +169,7 @@ function __history_substring_history_down
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index + 1)
         commandline $__history_substring_search_matches[$__history_substring_search_match_index]
     else
-        set -g __history_substring_search_old_buffer (commandline)
+        set -g __history_substring_search_match_index (math $__history_substring_search_matches_count + 1)
         commandline $__history_substring_search_query
     end
 end
