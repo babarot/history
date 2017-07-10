@@ -93,11 +93,14 @@ function __history_add --on-event fish_postexec
     if test -n $argv
 
         set -l status_code $status
-        set -l last_command $argv
         set -l git_branch (git rev-parse --abbrev-ref HEAD ^/dev/null)
-
-        command history add --command "$last_command" --dir "$PWD" --status "$status_code" --branch "$git_branch"
-
+        
+        for last_command in (string split '\n' -- "$argv")
+            command history add --command "$last_command" \
+                --dir "$PWD" \
+                --status "$status_code" \
+                --branch "$git_branch"
+        end
     end
 end
 
