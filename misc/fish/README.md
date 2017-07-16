@@ -11,13 +11,6 @@ You should get binaries in advance (see [README.md](https://github.com/b4b4r07/h
   fundle init
   ```
 
-- Install with [fresco](https://github.com/masa0x80/fresco)
-
-  Run the following command.
-  ```fish
-  fresco b4b4r07/history
-  ```
-
 - Install with [fisherman](https://github.com/fisherman/fisherman)
 
   You cannot choose a specific directory in a repository to load as a fish plugin.
