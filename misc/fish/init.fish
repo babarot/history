@@ -145,7 +145,8 @@ function __history_substring_search_begin
 end
 
 function __history_substring_search_end
-    if test $__history_substring_search_match_index -le $__history_substring_search_matches_count
+    if test $__history_substring_search_match_index -ge 0 \
+        -a $__history_substring_search_match_index -le $__history_substring_search_matches_count
         set -g __history_substring_search_result (commandline)
     else
         set -g __history_substring_search_result
@@ -163,12 +164,13 @@ function __history_substring_history_up
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index - 1)
         commandline $__history_substring_search_matches[$__history_substring_search_match_index]
     else
+        set -g __history_substring_search_match_index 0
         commandline $__history_substring_search_query
     end
 end
 
 function __history_substring_history_down
-    if test "$__history_substring_search_match_index" -lt (count $__history_substring_search_matches)
+    if test "$__history_substring_search_match_index" -lt $__history_substring_search_matches_count
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index + 1)
         commandline $__history_substring_search_matches[$__history_substring_search_match_index]
     else
