@@ -151,9 +151,9 @@ Then, add the following statements into the definition of `fish_user_key_binding
 ```fish
 function fish_user_key_bindings
 
-  bind \cr __fish_history_keybind_get
-  bind \cp __fish_history_keybind_arrow_up
-  bind \cn __fish_history_keybind_arrow_down
+  bind \cr __history_keybind_get
+  bind \cp __history_keybind_arrow_up
+  bind \cn __history_keybind_arrow_down
 
 end
 ```
