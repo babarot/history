@@ -162,20 +162,20 @@ end
 function __history_substring_history_up
     if test "$__history_substring_search_match_index" -gt 1
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index - 1)
-        commandline $__history_substring_search_matches[$__history_substring_search_match_index]
+        commandline -- $__history_substring_search_matches[$__history_substring_search_match_index]
     else
         set -g __history_substring_search_match_index 0
-        commandline $__history_substring_search_query
+        commandline -- $__history_substring_search_query
     end
 end
 
 function __history_substring_history_down
     if test "$__history_substring_search_match_index" -lt $__history_substring_search_matches_count
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index + 1)
-        commandline $__history_substring_search_matches[$__history_substring_search_match_index]
+        commandline -- $__history_substring_search_matches[$__history_substring_search_match_index]
     else
         set -g __history_substring_search_match_index (math $__history_substring_search_matches_count + 1)
-        commandline $__history_substring_search_query
+        commandline -- $__history_substring_search_query
     end
 end
 
