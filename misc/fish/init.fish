@@ -15,11 +15,11 @@ if test -z "$fish_history_auto_sync_interval"
 end
 
 if test -z "$fish_history_columns_get_all"
-    set -g fish_history_columns_get_all "{{.Time}}, {{.Status}},({{.Base}}:{{.Branch}})"
+    set -g fish_history_columns_get_all "{{.Time}},{{.Status}},{{.Command}},({{.Base}}:{{.Branch}})"
 end
 
 if test -z "$fish_history_filter_options"
-    set -g fish_history_filter_options "--filter-dir --filter-branch" 
+    set -g fish_history_filter_options --filter-dir --filter-branch 
 end
 
 #
@@ -184,31 +184,31 @@ end
 #
 
 function __history_keybind_get
-    set -l buf (eval command history search $fish_history_filter_options \
-        --query (commandline -c | string escape))
+    set -l buf (command history search $fish_history_filter_options \
+        --query (commandline -c))
 
     test -n "$buf"
-    and commandline $buf
+    and commandline -- $buf
 
     commandline -f repaint
 end
 
 function __history_keybind_get_by_dir
-    set -l buf (eval command history search --filter-dir --filter-branch \
-        --query (commandline -c | string escape))
+    set -l buf (command history search --filter-dir --filter-branch \
+        --query (commandline -c))
 
     test -n "$buf"
-    and commandline $buf
+    and commandline -- $buf
 
     commandline -f repaint
 end
 
 function __history_keybind_get_all
-    set -l buf (eval command history search $fish_history_columns_get_all \
-        --query (commandline -c | string escape))
+    set -l buf (command history search --columns $fish_history_columns_get_all \
+        --query (commandline -c))
 
     test -n "$buf"
-    and commandline $buf
+    and commandline -- $buf
 
     commandline -f repaint
 end
