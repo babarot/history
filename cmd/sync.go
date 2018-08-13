@@ -58,7 +58,7 @@ func sync(cmd *cobra.Command, args []string) error {
 }
 
 func skipSyncFor(interval time.Duration) bool {
-	file := filepath.Join(filepath.Dir(config.Conf.Core.TomlFile), ".sync")
+	file := filepath.Join(filepath.Dir(config.Conf.History.Path.Abs()), ".sync")
 	f, err := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0600)
 	if err != nil {
 		// Doesn't skip if some errors occur

@@ -2,12 +2,60 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
+
+type Path struct {
+	path string
+}
+
+func NewPath(path string) Path {
+	p := Path{path: path}
+	return p
+}
+
+func (p *Path) UnmarshalText(text []byte) error {
+	p.path = string(text)
+	return nil
+}
+
+func (p *Path) MarshalText() (text []byte, err error) {
+	return []byte(p.path), nil
+}
+
+func (p *Path) Abs() string {
+	path := p.path
+
+	if strings.HasPrefix(path, "~/") || strings.HasPrefix(path, "$HOME/") {
+		home := ""
+		if home = os.Getenv("HOME"); home == "" {
+			user, err := user.Current()
+			if err != nil {
+				log.Fatalf("Failed to get user home and $HOME not set.")
+			}
+			home = user.HomeDir
+		}
+
+		if home == "" {
+			log.Fatalf("Failed to get user home and $HOME not set.")
+		}
+
+		if strings.HasPrefix(path, "~/") {
+			path = strings.Replace(path, "~/", home+"/", 1)
+		}
+		if strings.HasPrefix(path, "$HOME/") {
+			path = strings.Replace(path, "$HOME/", home+"/", 1)
+		}
+	}
+	return path
+}
 
 type Config struct {
 	Core    CoreConfig    `toml:"core"`
@@ -21,14 +69,15 @@ type Config struct {
 type CoreConfig struct {
 	Editor    string `toml:"editor"`
 	SelectCmd string `toml:"selectcmd"`
-	TomlFile  string `toml:"tomlfile"`
+	TomlFile  Path   `toml:"tomlfile"`
 }
 
 type HistoryConfig struct {
-	Path     string     `toml:"path"`
-	Ignores  []string   `toml:"ignore_words"`
-	Sync     SyncConfig `toml:"sync"`
-	UseColor bool       `toml:"use_color"`
+	Path       Path       `toml:"path"`
+	BackupPath Path       `toml:"backup_path"`
+	Ignores    []string   `toml:"ignore_words"`
+	Sync       SyncConfig `toml:"sync"`
+	UseColor   bool       `toml:"use_color"`
 }
 
 type SyncConfig struct {
@@ -79,7 +128,7 @@ func GetDefaultDir() (string, error) {
 }
 
 func (cfg *Config) Save() error {
-	f, err := os.OpenFile(cfg.Core.TomlFile, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(cfg.Core.TomlFile.Abs(), os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
@@ -112,9 +161,11 @@ func (cfg *Config) LoadFile(file string) error {
 		cfg.Core.Editor = "vim"
 	}
 	cfg.Core.SelectCmd = "fzf-tmux --multi:fzf --multi:peco"
-	cfg.Core.TomlFile = file
+	cfg.Core.TomlFile = NewPath(file)
 
-	cfg.History.Path = filepath.Join(dir, "history.ltsv")
+	cfg.History.Path = NewPath(filepath.Join(dir, "history.ltsv"))
+	cfg.History.BackupPath = NewPath(filepath.Join(dir, ".backup"))
+
 	cfg.History.Ignores = []string{}
 	cfg.History.UseColor = false
 	cfg.History.Sync.ID = ""

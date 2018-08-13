@@ -21,7 +21,7 @@ type History struct {
 
 func Load() (h *History, err error) {
 	var records []Record
-	path := config.Conf.History.Path
+	path := config.Conf.History.Path.Abs()
 	h = &History{Records: Records{}, Path: path}
 
 	file, err := os.Open(path)
@@ -73,9 +73,15 @@ func (h *History) Backup() (err error) {
 		return nil
 	}
 
-	dir, err := config.GetDefaultDir()
-	if err != nil {
-		return
+	dir := ""
+	p := config.Conf.History.BackupPath
+	if p.Abs() != "" {
+		dir = p.Abs()
+	} else {
+		dir, err = config.GetDefaultDir()
+		if err != nil {
+			return err
+		}
 	}
 
 	dir = filepath.Join(dir, ".backup", time.Now().Format("2006/01/02"))

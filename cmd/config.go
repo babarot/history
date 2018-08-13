@@ -24,7 +24,7 @@ var (
 )
 
 func conf(cmd *cobra.Command, args []string) error {
-	tomlfile := config.Conf.Core.TomlFile
+	tomlfile := config.Conf.Core.TomlFile.Abs()
 	if tomlfile == "" {
 		dir, _ := config.GetDefaultDir()
 		tomlfile = filepath.Join(dir, "config.toml")

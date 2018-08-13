@@ -116,7 +116,7 @@ func (h *History) getGistID() (id string, err error) {
 
 	for _, item := range items {
 		for _, file := range item.Files {
-			if *file.Filename == filepath.Base(config.Conf.History.Path) {
+			if *file.Filename == filepath.Base(config.Conf.History.Path.Abs()) {
 				id = *item.ID
 				break
 			}
