@@ -51,4 +51,18 @@ func initConf() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+
+	if histPath := filepath.Dir(config.Conf.History.Path.Abs()); histPath != "" {
+		if _, err := os.Stat(histPath); err != nil {
+			fmt.Printf("Creating directory '%s' for history storage", histPath)
+			os.MkdirAll(histPath, 0700)
+		}
+	}
+
+	if backupPath := config.Conf.History.BackupPath.Abs(); backupPath != "" {
+		if _, err := os.Stat(backupPath); err != nil {
+			fmt.Printf("Creating directory '%s' for backup storage", backupPath)
+			os.MkdirAll(backupPath, 0700)
+		}
+	}
 }
