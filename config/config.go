@@ -90,6 +90,7 @@ type ScreenConfig struct {
 	FilterDir      bool     `toml:"filter_dir"`
 	FilterBranch   bool     `toml:"filter_branch"`
 	FilterHostname bool     `toml:"filter_hostname"`
+	FilterStatus   bool     `toml:"filter_status"`
 	Columns        []string `toml:"columns"`
 	StatusOK       string   `toml:"status_ok"`
 	StatusNG       string   `toml:"status_ng"`
@@ -99,6 +100,7 @@ type VarConfig struct {
 	Dir      string
 	Branch   string
 	Hostname string
+	Status 	 bool
 	Query    string
 	Columns  string
 }
@@ -178,6 +180,7 @@ func (cfg *Config) LoadFile(file string) error {
 	cfg.Screen.FilterDir = false
 	cfg.Screen.FilterBranch = false
 	cfg.Screen.FilterHostname = false
+	cfg.Screen.FilterStatus = false
 	cfg.Screen.Columns = []string{"{{.Time}}", "{{.Status}}", "{{.Command}}"}
 	cfg.Screen.StatusOK = " "
 	cfg.Screen.StatusNG = "x"

@@ -25,6 +25,9 @@ func search(cmd *cobra.Command, args []string) error {
 	if config.Conf.Screen.FilterHostname {
 		config.Conf.Var.Hostname = cli.GetHostName()
 	}
+	if config.Conf.Screen.FilterStatus {
+		config.Conf.Var.Status = true
+	}
 
 	screen, err := cli.NewScreen()
 	if err != nil {
@@ -50,6 +53,7 @@ func init() {
 	searchCmd.Flags().BoolVarP(&config.Conf.Screen.FilterDir, "filter-dir", "d", config.Conf.Screen.FilterDir, "Search with dir")
 	searchCmd.Flags().BoolVarP(&config.Conf.Screen.FilterBranch, "filter-branch", "b", config.Conf.Screen.FilterBranch, "Search with branch")
 	searchCmd.Flags().BoolVarP(&config.Conf.Screen.FilterHostname, "filter-hostname", "p", config.Conf.Screen.FilterHostname, "Search with hostname")
+	searchCmd.Flags().BoolVarP(&config.Conf.Screen.FilterStatus, "filter-status", "s", config.Conf.Screen.FilterStatus, "Search with status OK")
 	searchCmd.Flags().StringVarP(&config.Conf.Var.Query, "query", "q", config.Conf.Var.Query, "Search with query")
 	searchCmd.Flags().StringVarP(&config.Conf.Var.Columns, "columns", "c", config.Conf.Var.Columns, "Specify columns with options")
 }
