@@ -18,7 +18,6 @@ A CLI to provide enhanced history for your shell
 - Get binaries
   - via GitHub Releases: <https://github.com/b4b4r07/history/releases>
   - for Gophers: `go get -u github.com/b4b4r07/history`
-  - for macOS users: `brew install b4b4r07/history/history`
 - (Additional) if you're zsh user, it's better to intergrate your shell
 
     ```console
