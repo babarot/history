@@ -62,6 +62,9 @@ func NewScreen() (s *Screen, err error) {
 		if cc.FilterHostname && cv.Hostname != record.Hostname {
 			continue
 		}
+		if cc.FilterStatus && cv.Status && record.Status != 0 {
+			continue
+		}
 		lines = append(lines, record.Render())
 		records = append(records, record)
 	}

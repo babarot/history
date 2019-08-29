@@ -4,7 +4,11 @@ __history::keybind::get()
 {
     local buf opt
     # by default, equals to __history::keybind::get_by_dir behavior
-    buf="$(command history search $ZSH_HISTORY_FILTER_OPTIONS --query "$LBUFFER")"
+    cmd="command history search $ZSH_HISTORY_FILTER_OPTIONS"
+    if [[ -n "$LBUFFER" ]]; then
+        cmd="$cmd --query "$LBUFFER""
+    fi
+    buf="$(eval $cmd)"
     if [[ -n $buf ]]; then
         BUFFER="$buf"
         CURSOR=$#BUFFER
