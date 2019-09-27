@@ -19,10 +19,11 @@ __history::keybind::get()
 __history::keybind::get_by_dir()
 {
     local buf
-    buf="$(command history search \
-        --filter-dir \
-        --filter-branch \
-        --query "$LBUFFER")"
+    cmd="command history search $ZSH_HISTORY_FILTER_OPTIONS_BY_DIR"
+    if [[ -n "$LBUFFER" ]]; then
+        cmd="$cmd --query "$LBUFFER""
+    fi
+    buf="$(eval $cmd)"
     if [[ -n $buf ]]; then
         BUFFER="$buf"
         CURSOR=$#BUFFER

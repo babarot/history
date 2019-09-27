@@ -62,6 +62,10 @@ fi
 
 if [[ -z $ZSH_HISTORY_FILTER_OPTIONS ]]; then
     # by default, equals to __history::keybind::get_by_dir behavior
+    export ZSH_HISTORY_FILTER_OPTIONS="${ZSH_HISTORY_OPTIONS_BY_DIR}"
+fi
+
+if [[ -z $ZSH_HISTORY_FILTER_OPTIONS_BY_DIR ]]; then
     export ZSH_HISTORY_FILTER_OPTIONS="--filter-dir --filter-branch"
 fi
 
