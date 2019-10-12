@@ -26,7 +26,7 @@ func (p *Path) UnmarshalText(text []byte) error {
 	return nil
 }
 
-func (p *Path) MarshalText() (text []byte, err error) {
+func (p Path) MarshalText() (text []byte, err error) {
 	return []byte(p.path), nil
 }
 
