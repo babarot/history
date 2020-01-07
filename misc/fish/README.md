@@ -11,13 +11,6 @@ You should get binaries in advance (see [README.md](https://github.com/b4b4r07/h
   fundle init
   ```
 
-- Install with [fresco](https://github.com/masa0x80/fresco)
-
-  Run the following command.
-  ```fish
-  fresco b4b4r07/history
-  ```
-
 - Install with [fisherman](https://github.com/fisherman/fisherman)
 
   You cannot choose a specific directory in a repository to load as a fish plugin.
@@ -158,9 +151,9 @@ Then, add the following statements into the definition of `fish_user_key_binding
 ```fish
 function fish_user_key_bindings
 
-  bind \cr __fish_history_keybind_get
-  bind \cp __fish_history_keybind_arrow_up
-  bind \cn __fish_history_keybind_arrow_down
+  bind \cr __history_keybind_get
+  bind \cp __history_keybind_arrow_up
+  bind \cn __history_keybind_arrow_down
 
 end
 ```

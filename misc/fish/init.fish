@@ -15,11 +15,11 @@ if test -z "$fish_history_auto_sync_interval"
 end
 
 if test -z "$fish_history_columns_get_all"
-    set -g fish_history_columns_get_all "{{.Time}}, {{.Status}},({{.Base}}:{{.Branch}})"
+    set -g fish_history_columns_get_all "{{.Time}},{{.Status}},{{.Command}},({{.Base}}:{{.Branch}})"
 end
 
 if test -z "$fish_history_filter_options"
-    set -g fish_history_filter_options "--filter-dir --filter-branch" 
+    set -g fish_history_filter_options --filter-dir --filter-branch 
 end
 
 #
@@ -93,11 +93,14 @@ function __history_add --on-event fish_postexec
     if test -n $argv
 
         set -l status_code $status
-        set -l last_command $argv
         set -l git_branch (git rev-parse --abbrev-ref HEAD ^/dev/null)
-
-        command history add --command "$last_command" --dir "$PWD" --status "$status_code" --branch "$git_branch"
-
+        
+        for last_command in (string split '\n' -- "$argv")
+            command history add --command "$last_command" \
+                --dir "$PWD" \
+                --status "$status_code" \
+                --branch "$git_branch"
+        end
     end
 end
 
@@ -134,7 +137,7 @@ function __history_substring_search_begin
             --filter-branch \
             --filter-dir \
             --columns '{{.Command}}' \
-            --query (string escape -n $buffer))
+            --query "$buffer")
 
         set -g __history_substring_search_matches_count (count $__history_substring_search_matches)
         set -g __history_substring_search_match_index (math $__history_substring_search_matches_count + 1)
@@ -142,29 +145,37 @@ function __history_substring_search_begin
 end
 
 function __history_substring_search_end
-    set -g __history_substring_search_result (commandline)
+    if test $__history_substring_search_match_index -ge 0 \
+        -a $__history_substring_search_match_index -le $__history_substring_search_matches_count
+        set -g __history_substring_search_result (commandline)
+    else
+        set -g __history_substring_search_result
+    end
 
     function __history_substring_reset --on-event fish_preexec
         set -g __history_substring_search_result
     end
+
+    commandline -f repaint
 end
 
 function __history_substring_history_up
-    if test "$__history_substring_search_match_index" -gt 0
+    if test "$__history_substring_search_match_index" -gt 1
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index - 1)
-        commandline $__history_substring_search_matches[$__history_substring_search_match_index]
+        commandline -- $__history_substring_search_matches[$__history_substring_search_match_index]
     else
-        __history_substring_not_found
+        set -g __history_substring_search_match_index 0
+        commandline -- $__history_substring_search_query
     end
 end
 
 function __history_substring_history_down
-    if test "$__history_substring_search_match_index" -lt (count $__history_substring_search_matches)
+    if test "$__history_substring_search_match_index" -lt $__history_substring_search_matches_count
         set -g __history_substring_search_match_index (math $__history_substring_search_match_index + 1)
-        commandline $__history_substring_search_matches[$__history_substring_search_match_index]
+        commandline -- $__history_substring_search_matches[$__history_substring_search_match_index]
     else
-        set -g __history_substring_search_old_buffer (commandline)
-        commandline $__history_substring_search_query
+        set -g __history_substring_search_match_index (math $__history_substring_search_matches_count + 1)
+        commandline -- $__history_substring_search_query
     end
 end
 
@@ -177,32 +188,27 @@ function __history_keybind_get
         --query (commandline -c))
 
     test -n "$buf"
-    and commandline $buf
+    and commandline -- $buf
 
     commandline -f repaint
 end
 
 function __history_keybind_get_by_dir
-    set -l buf (command history search \
-        --filter-dir \
-        --filter-branch \
+    set -l buf (command history search --filter-dir --filter-branch \
         --query (commandline -c))
 
     test -n "$buf"
-    and commandline $buf
+    and commandline -- $buf
 
     commandline -f repaint
 end
 
 function __history_keybind_get_all
-    set -l opt
-    test -n "$fish_history_columns_get_all"
-    and set opt "--columns $fish_history_columns_get_all"
-
-    set -l buf (command history search $opt --query (commandline -c))
+    set -l buf (command history search --columns $fish_history_columns_get_all \
+        --query (commandline -c))
 
     test -n "$buf"
-    and commandline $buf
+    and commandline -- $buf
 
     commandline -f repaint
 end
